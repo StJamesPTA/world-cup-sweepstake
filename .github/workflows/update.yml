@@ -1,4 +1,3 @@
-
 name: Update standings
 
 on:
@@ -9,9 +8,13 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ✅ ADD THIS
+
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
