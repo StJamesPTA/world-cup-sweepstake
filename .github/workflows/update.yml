@@ -1,3 +1,4 @@
+name: Update standings
 
 on:
   workflow_dispatch:
