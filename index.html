@@ -545,16 +545,18 @@
     adjustStandingsColumns();
   }
 
-  function renderRecent(matches){
+
+function renderRecent(matches){
     const el = document.getElementById('recent');
     if(!matches || !matches.length){
       el.innerHTML = '<div class="small">No finished matches applied yet.</div>';
       return;
     }
     el.innerHTML = '<ul>' + matches.map(m =>
-      `<li>${esc(m.home)} vs ${esc(m.away)} — FT ${m.ft.home}-${m.ft.away}${m.et ? `, ET ${m.et.home}-${m.et.away}` : ''}</li>`
+      `<li>${esc(m.home)} vs ${esc(m.away)} — ${esc(m.score)}</li>`
     ).join('') + '</ul>';
   }
+
 
   // Build pot membership from tickets.json (teams are in pot order [Pot1, Pot2, Pot3])
   function buildPotMapFromTickets(mappedTickets){
@@ -638,13 +640,16 @@
     addGroup('Pot 3', potMap.pot3);
   }
 
-  function buildStandings(tickets, teamsData, nameMap){
+ 
+function buildStandings(tickets, teamsData, nameMap){
     const teamMap = new Map((teamsData.teams||[]).map(t => [t.team, t]));
 
-    // Map ticket team names to provider names (so totals match teams.json)
     const mappedTickets = (tickets||[]).map(t => {
       const displayTeams = t.teams || [];
-      const mappedTeams = displayTeams.map(n => (nameMap && nameMap[n]) ? nameMap[n] : n);
+
+      // ✅ FIX APPLIED HERE
+      const mappedTeams = displayTeams;
+
       return { ...t, displayTeams, mappedTeams };
     });
 
