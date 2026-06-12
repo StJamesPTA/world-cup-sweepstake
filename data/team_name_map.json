@@ -1,3 +1,4 @@
+
 {
   "Argentina": "Argentina",
   "Belgium": "Belgium",
@@ -19,8 +20,10 @@
   "Switzerland": "Switzerland",
   "Turkey": "Turkey",
   "USA": "USA",
-  "Uruguay": "Uruguay"
+  "Uruguay": "Uruguay",
+
   "United States": "USA",
   "Korea Republic": "South Korea",
-
+  "IR Iran": "Iran",
+  "Czech Republic": "Czechia"
 }
