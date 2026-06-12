@@ -23,6 +23,7 @@ HEADERS = {
     "X-Auth-Token": TOKEN
 }
 
+
 def http_get(path, params=None):
     url = BASE + path
     if params:
@@ -58,6 +59,7 @@ def counted_goals(score):
     rt_h, rt_a = pair(rt) if rt else (ft_h, ft_a)
     et_h, et_a = pair(et) if et else (0, 0)
 
+    # ✅ include extra time, exclude penalties
     if duration in ("EXTRA_TIME", "PENALTY_SHOOTOUT"):
         return rt_h + et_h, rt_a + et_a
 
@@ -65,14 +67,13 @@ def counted_goals(score):
 
 
 def main():
-
     with open(TICKETS_PATH) as f:
         tickets = json.load(f)
 
     with open(MAP_PATH) as f:
         name_map = json.load(f)
 
-    # Build sweepstake team list
+    # ✅ sweepstake teams
     sweep_teams = {
         name_map.get(team, team)
         for t in tickets
@@ -81,7 +82,7 @@ def main():
 
     print("Tracking teams:", sweep_teams)
 
-    # ✅ Fetch matches by date (this is the FIX)
+    # ✅ USE DATE WINDOW (CRITICAL FIX)
     today = datetime.utcnow()
     date_from = (today - timedelta(days=2)).strftime("%Y-%m-%d")
     date_to   = (today + timedelta(days=1)).strftime("%Y-%m-%d")
@@ -110,26 +111,29 @@ def main():
         home_raw = m["homeTeam"]["name"]
         away_raw = m["awayTeam"]["name"]
 
-        # ✅ Map names
+        # ✅ map names
         home = name_map.get(home_raw, home_raw)
         away = name_map.get(away_raw, away_raw)
 
-        print("Match:", home, "vs", away)
-
-        if home not in team_stats or away not in team_stats:
+        # ✅ CRITICAL FIX — include if EITHER team is relevant
+        if home not in team_stats and away not in team_stats:
             continue
 
         ch, ca = counted_goals(m.get("score"))
 
-        team_stats[home]["gf"] += ch
-        team_stats[home]["ga"] += ca
+        if home in team_stats:
+            team_stats[home]["gf"] += ch
+            team_stats[home]["ga"] += ca
 
-        team_stats[away]["gf"] += ca
-        team_stats[away]["ga"] += ch
+        if away in team_stats:
+            team_stats[away]["gf"] += ca
+            team_stats[away]["ga"] += ch
 
         if status == "FINISHED":
-            team_stats[home]["played"] += 1
-            team_stats[away]["played"] += 1
+            if home in team_stats:
+                team_stats[home]["played"] += 1
+            if away in team_stats:
+                team_stats[away]["played"] += 1
 
             finished.append({
                 "home": home,
@@ -149,7 +153,7 @@ def main():
     with open(OUT_RECENT, "w") as f:
         json.dump({"matches": finished[:5]}, f, indent=2)
 
-    print("✅ Updated successfully")
+    print("✅ UPDATE COMPLETE")
 
 
 if __name__ == "__main__":
