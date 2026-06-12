@@ -147,11 +147,23 @@ def main():
 
     finished.sort(key=lambda x: x["utcDate"], reverse=True)
 
-    with open(OUT_TEAMS, "w") as f:
-        json.dump({"teams": list(team_stats.values())}, f, indent=2)
 
-    with open(OUT_RECENT, "w") as f:
-        json.dump({"matches": finished[:5]}, f, indent=2)
+generated_at = datetime.utcnow().isoformat() + "Z"
+
+with open(OUT_TEAMS, "w") as f:
+    json.dump({
+        "generated_at": generated_at,
+        "teams": list(team_stats.values())
+    }, f, indent=2)
+
+
+
+with open(OUT_RECENT, "w") as f:
+    json.dump({
+        "generated_at": generated_at,
+        "matches": finished[:5]
+    }, f, indent=2)
+
 
     print("✅ DONE")
 
