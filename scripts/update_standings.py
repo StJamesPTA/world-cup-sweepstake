@@ -15,9 +15,9 @@ if not TOKEN:
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 TICKETS_PATH = os.path.join(ROOT, "data", "tickets.json")
-MAP_PATH = os.path.join(ROOT, "data", "team_name_map.json")
+MAP_PATH     = os.path.join(ROOT, "data", "team_name_map.json")
 
-OUT_TEAMS = os.path.join(ROOT, "standings", "teams.json")
+OUT_TEAMS  = os.path.join(ROOT, "standings", "teams.json")
 OUT_RECENT = os.path.join(ROOT, "standings", "recent_finished.json")
 
 HEADERS = {
@@ -25,6 +25,7 @@ HEADERS = {
 }
 
 
+# ✅ HTTP helper
 def http_get(path, params=None):
     url = BASE + path
     if params:
@@ -36,6 +37,7 @@ def http_get(path, params=None):
         return json.loads(r.read().decode())
 
 
+# ✅ helpers
 def safe(x):
     return 0 if x is None else int(x)
 
@@ -67,23 +69,30 @@ def counted_goals(score):
     return ft_h, ft_a
 
 
+# ✅ ✅ MAIN FUNCTION
 def main():
+
     os.makedirs(os.path.join(ROOT, "standings"), exist_ok=True)
 
+    # ✅ load inputs
     with open(TICKETS_PATH) as f:
         tickets = json.load(f)
 
-    with open(MAP_PATH) as f:
-        name_map = json.load(f)
+    try:
+        with open(MAP_PATH) as f:
+            name_map = json.load(f)
+    except:
+        name_map = {}
 
-    sweep_teams = {
-        name_map.get(team, team)
-        for t in tickets
-        for team in t["teams"]
-    }
+    # ✅ collect teams from tickets
+    sweep_teams = set()
+    for t in tickets:
+        for team in t["teams"]:
+            sweep_teams.add(team)
 
-    print("Tracking:", sweep_teams)
+    print("Tracking teams:", sweep_teams)
 
+    # ✅ fetch matches (date range)
     today = datetime.utcnow()
     date_from = (today - timedelta(days=2)).strftime("%Y-%m-%d")
     date_to   = (today + timedelta(days=1)).strftime("%Y-%m-%d")
@@ -96,6 +105,7 @@ def main():
     matches = data.get("matches", [])
     print("Matches returned:", len(matches))
 
+    # ✅ init stats
     team_stats = {
         t: {"team": t, "gf": 0, "ga": 0, "gd": 0, "played": 0}
         for t in sweep_teams
@@ -103,24 +113,27 @@ def main():
 
     finished = []
 
+    # ✅ process matches
     for m in matches:
 
         status = m.get("status")
         if status in ("SCHEDULED", "TIMED"):
             continue
 
-        home_raw = m["homeTeam"]["name"]
-        away_raw = m["awayTeam"]["name"]
+        home_raw = m.get("homeTeam", {}).get("name")
+        away_raw = m.get("awayTeam", {}).get("name")
 
+        # ✅ map names if needed
         home = name_map.get(home_raw, home_raw)
         away = name_map.get(away_raw, away_raw)
 
-        # ✅ CRITICAL FIX
+        # ✅ include if either team matters
         if home not in team_stats and away not in team_stats:
             continue
 
         ch, ca = counted_goals(m.get("score"))
 
+        # ✅ update stats
         if home in team_stats:
             team_stats[home]["gf"] += ch
             team_stats[home]["ga"] += ca
@@ -129,7 +142,9 @@ def main():
             team_stats[away]["gf"] += ca
             team_stats[away]["ga"] += ch
 
+        # ✅ finished matches
         if status == "FINISHED":
+
             if home in team_stats:
                 team_stats[home]["played"] += 1
             if away in team_stats:
@@ -142,31 +157,32 @@ def main():
                 "utcDate": m.get("utcDate")
             })
 
+    # ✅ compute GD
     for t in team_stats.values():
         t["gd"] = t["gf"] - t["ga"]
 
+    # ✅ sort recent
     finished.sort(key=lambda x: x["utcDate"], reverse=True)
 
+    # ✅ ✅ TIMESTAMP FIX
+    generated_at = datetime.utcnow().isoformat() + "Z"
 
-generated_at = datetime.utcnow().isoformat() + "Z"
+    # ✅ ✅ WRITE OUTPUT (CORRECTLY PLACED ✅)
+    with open(OUT_TEAMS, "w") as f:
+        json.dump({
+            "generated_at": generated_at,
+            "teams": list(team_stats.values())
+        }, f, indent=2)
 
-with open(OUT_TEAMS, "w") as f:
-    json.dump({
-        "generated_at": generated_at,
-        "teams": list(team_stats.values())
-    }, f, indent=2)
-
-
-
-with open(OUT_RECENT, "w") as f:
-    json.dump({
-        "generated_at": generated_at,
-        "matches": finished[:5]
-    }, f, indent=2)
-
+    with open(OUT_RECENT, "w") as f:
+        json.dump({
+            "generated_at": generated_at,
+            "matches": finished[:5]
+        }, f, indent=2)
 
     print("✅ DONE")
 
 
+# ✅ ✅ ENTRY POINT
 if __name__ == "__main__":
     main()
