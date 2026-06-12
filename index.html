@@ -1,718 +1,181 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>St James' PTA World Cup 2026 Goals Sweepstake</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>St James' PTA World Cup 2026 Goals Sweepstake</title>
 
-  <style>
-    :root{
-      --bg: #0b1220;
-
-      /* Dark + red→yellow */
-      --red:     #dc2626;
-      --redDeep: #991b1b;
-      --amber:   #f59e0b;
-      --yellow:  #fbbf24;
-
-      --panel: rgba(255,255,255,0.06);
-      --border: rgba(255,255,255,0.12);
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.68);
-      --muted2: rgba(255,255,255,0.52);
-
-      --shadow: 0 8px 22px rgba(0,0,0,0.32);
-      --radius: 16px;
-      --radius2: 12px;
-    }
-
-    *{ box-sizing: border-box; }
-    html, body{ height: 100%; }
-
-    body{
-      margin: 0;
-      padding: 22px;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(1200px 800px at 12% 0%, rgba(220,38,38,0.40), transparent 55%),
-        radial-gradient(950px 720px at 90% 10%, rgba(245,158,11,0.26), transparent 60%),
-        radial-gradient(820px 520px at 55% 92%, rgba(251,191,36,0.20), transparent 62%),
-        radial-gradient(900px 700px at 6% 86%, rgba(153,27,27,0.26), transparent 60%),
-        var(--bg);
-      color: var(--text);
-    }
-
-    h1{
-      margin: 0 0 8px 0;
-      font-size: clamp(24px, 2.4vw, 34px);
-      font-weight: 850;
-      letter-spacing: -0.02em;
-    }
-
-    .meta{
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.4;
-      margin: 0;
-    }
-
-    .small{ font-size: 12px; color: var(--muted2); }
-
-    code{
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.10);
-      padding: 1px 6px;
-      border-radius: 999px;
-      color: rgba(255,255,255,0.86);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    /* === Header aligned to main 60/40 grid === */
-    .header-grid{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
-      align-items: start;
-      margin-bottom: 10px;
-    }
-    @media (min-width:1100px){
-      .header-grid{ grid-template-columns: 1.7fr 1fr; } /* match main grid */
-    }
-
-    .header-badge{
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 2px;
-    }
-
-    .badge-right{
-      width: 92px;
-      height: 92px;
-      object-fit: contain;
-      border-radius: 16px;
-      background: rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.14);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.35);
-    }
-    @media (max-width:480px){
-      .badge-right{ width: 78px; height: 78px; }
-    }
-
-    /* === Main 60/40 grid === */
-    .grid{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
-      align-items: start;
-      margin-top: 8px;
-    }
-    @media (min-width:1100px){
-      .grid{ grid-template-columns: 1.7fr 1fr; } /* ~60/40 */
-    }
-
-    section{
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      position: relative;
-    }
-
-    section > h2{
-      margin: 0;
-      padding: 14px 16px;
-      font-size: 16px;
-      font-weight: 780;
-      letter-spacing: -0.01em;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent);
-    }
-
-    /* Search */
-    .search{
-      width: calc(100% - 32px);
-      margin: 12px 16px 14px 16px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,0.28);
-      color: var(--text);
-      outline: none;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    .search::placeholder{ color: rgba(255,255,255,0.45); }
-    .search:focus{
-      border-color: rgba(245,158,11,0.78);
-      box-shadow: 0 0 0 4px rgba(245,158,11,0.18);
-    }
-
-    /* Right stack */
-    .right-stack{
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    /* Scroll containers (vertical only) */
-    .table-wrap{ padding: 0 16px 16px 16px; }
-    .table-scroll{
-      overflow-y: auto;
-      overflow-x: hidden; /* no horizontal scrolling */
-      border-radius: var(--radius2);
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,0.18);
-    }
-
-    table{
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      table-layout: fixed;
-    }
-
-    th, td{
-      padding: 10px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      vertical-align: top;
-      font-size: 13.5px;
-    }
-
-    thead th{
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      font-size: 12px;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.78);
-      background: rgba(11,18,32,0.98); /* solid */
-      border-bottom: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(6px);
-    }
-
-    tbody tr:nth-child(2n) td{ background: rgba(255,255,255,0.02); }
-    tbody tr:hover td{ background: rgba(220,38,38,0.10); }
-
-    /* Pills */
-    .pill{
-      display: inline-flex;
-      align-items: center;
-      padding: 3px 8px;
-      margin-right: 6px;
-      font-size: 11px;
-      border-radius: 999px;
-      border: 1px solid rgba(245,158,11,0.24);
-      background: rgba(245,158,11,0.14);
-      color: rgba(255,255,255,0.92);
-      max-width: 100%;
-    }
-
-    /* Column widths */
-    .col-pos{ width: 56px; }
-    .col-ticket{ width: 76px; }
-    .col-owner{ width: 180px; } /* owner high priority */
-    .col-goals{ width: 72px; }
-    .col-gd{ width: 64px; }
-    .col-mini{ width: 64px; }
-
-    /* Recent */
-    .recent-body{ padding: 12px 16px 16px 16px; }
-    .recent{
-      max-height: 150px;
-      overflow: auto;
-      padding: 10px 12px;
-      background: rgba(0,0,0,0.18);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: var(--radius2);
-    }
-    .recent ul{ margin: 0; padding-left: 18px; }
-    .recent li{
-      margin: 8px 0;
-      white-space: normal;
-      color: var(--muted);
-      line-height: 1.35;
-    }
-
-    /* === Ticket table column hiding (NO horizontal scroll) ===
-       Always visible: Pos, Owner, Goals, GD
-       Hide order (lowest priority first): Ticket, then Teams
-    */
-    #standingsTable.hide-ticket [data-col="ticket"]{ display:none; }
-    #standingsTable.hide-teams  [data-col="teams"]{ display:none; }
-
-    /* Top 3 highlight ALWAYS visible (apply to Pos cell) */
-    #standingsTable tr.leader-1 td[data-col="pos"]{ box-shadow: inset 4px 0 0 rgba(245,158,11,0.95); }
-    #standingsTable tr.leader-2 td[data-col="pos"]{ box-shadow: inset 4px 0 0 rgba(255,255,255,0.55); }
-    #standingsTable tr.leader-3 td[data-col="pos"]{ box-shadow: inset 4px 0 0 rgba(220,38,38,0.92); }
-    #standingsTable td[data-col="pos"]{ background: rgba(11,18,32,0.92); }
-    #standingsTable tr:nth-child(2n) td[data-col="pos"]{ background: rgba(11,18,32,0.96); }
-
-    /* Goals-by-team grouped headers */
-    .group-row td{
-      background: rgba(11,18,32,0.98) !important;
-      color: rgba(255,255,255,0.88);
-      font-weight: 780;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-      border-bottom: 1px solid rgba(255,255,255,0.12);
-    }
-
-    /* Tooltip bubble (shows hidden fields only) */
-    .row-tooltip{
-      position: fixed;
-      z-index: 9999;
-      max-width: min(420px, calc(100vw - 24px));
-      background: rgba(11,18,32,0.98);
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 12px;
-      padding: 10px 12px;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.45);
-      color: rgba(255,255,255,0.92);
-      font-size: 13px;
-      line-height: 1.35;
-      display: none;
-    }
-    .row-tooltip .k{ color: rgba(255,255,255,0.62); }
-    .row-tooltip .row{
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 6px 10px;
-    }
-  </style>
+<style>
+body{font-family:system-ui;background:#0b1220;color:white;padding:20px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid #333}
+th{background:#111}
+</style>
 </head>
 
 <body>
-  <div class="header-grid">
-    <div>
-      <h1>St James' PTA World Cup 2026 Goals Sweepstake</h1>
-      <div class="meta">
-        Winner decided by Highest Team Total Goals → Team Total Goal Diff → Weakest combo pre‑tournament.<br>
-        Goals count in Normal Time + Extra Time only. Penalty shootout goals are excluded.
-        <div id="updated" class="small">Loading…</div>
-      </div>
-    </div>
 
-    <!-- Badge image only (project-pages safe path) -->
-    <div class="header-badge">
-      <img class="badge-right" src="/world-cup-sweepstake/st.-james.png" alt="St James' RC Primary School badge">
-    </div>
-  </div>
+<h1>World Cup Sweepstake</h1>
+<div id="updated">Loading…</div>
 
-  <div class="grid">
-    <!-- LEFT: Ticket table -->
-    <section>
-      <h2>Ticket League Table</h2>
-      <input id="search" class="search" placeholder="Search by owner, ticket number, or team…" />
+<h2>Ticket Standings</h2>
+<input id="search" placeholder="Search..." style="margin-bottom:10px;padding:6px;width:200px"/>
 
-      <div class="table-wrap">
-        <div class="table-scroll" id="standingsWrap" style="max-height:75vh;">
-          <table id="standingsTable">
-            <thead>
-              <tr>
-                <th class="col-pos" data-col="pos">Pos</th>
-                <th class="col-ticket" data-col="ticket">Ticket</th>
-                <th class="col-owner" data-col="owner">Owner</th>
-                <th data-col="teams">Teams</th>
-                <th class="col-goals" data-col="goals">Goals</th>
-                <th class="col-gd" data-col="gd">GD</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+<table id="standingsTable">
+<thead>
+<tr>
+<th>Pos</th>
+<th>Ticket</th>
+<th>Owner</th>
+<th>Teams</th>
+<th>Goals</th>
+<th>GD</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
 
-    <!-- RIGHT: Recent + Goals stacked -->
-    <div class="right-stack">
-      <section>
-        <h2>Recently applied finished matches</h2>
-        <div class="recent-body">
-          <div class="recent" id="recent"></div>
-        </div>
-      </section>
+<h2>Recent Matches</h2>
+<div id="recent"></div>
 
-      <section>
-        <h2>Goals by Team</h2>
-        <div class="table-wrap">
-          <div class="table-scroll" style="max-height:60vh;">
-            <table id="teamsTable">
-              <thead>
-                <tr>
-                  <th>Team</th>
-                  <th class="col-mini">GF</th>
-                  <th class="col-mini">GA</th>
-                  <th class="col-mini">GD</th>
-                  <th class="col-mini">P</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="small" style="margin:0 16px 16px 16px;">
-          Tip: if a team name doesn't match the data provider naming, update <code>data/team_name_map.json</code>.
-        </div>
-      </section>
-    </div>
-  </div>
+<h2>Team Stats</h2>
+<table id="teamsTable">
+<thead>
+<tr>
+<th>Team</th><th>GF</th><th>GA</th><th>GD</th><th>P</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
 
 <script>
-  const CACHE_BUST = `?t=${Date.now()}`;
-  const TEAMS_URL    = `./standings/teams.json${CACHE_BUST}`;
-  const RECENT_URL   = `./standings/recent_finished.json${CACHE_BUST}`;
-  const TICKETS_URL  = `./data/tickets.json${CACHE_BUST}`;
-  const TEAMMAP_URL  = `./data/team_name_map.json${CACHE_BUST}`;
 
-  // Pre-tournament rank order you provided (1 = best)
-  const PRE_RANK = {
-    "Spain": 1,
-    "France": 2,
-    "England": 3,
-    "Argentina": 4,
-    "Brazil": 5,
-    "Portugal": 6,
-    "Germany": 7,
-    "Netherlands": 8,
-    "Norway": 9,
-    "Belgium": 10,
-    "Colombia": 11,
-    "Japan": 12,
-    "Morocco": 13,
-    "Uruguay": 14,
-    "Mexico": 15,
-    "USA": 16,
-    "Switzerland": 17,
-    "Turkey": 18,
-    "Croatia": 19,
-    "Ecuador": 20,
-    "Senegal": 21
-  };
+const CACHE = '?t=' + Date.now();
 
-  function esc(s){
-    return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+async function fetchJSON(url){
+  const r = await fetch(url);
+  return r.json();
+}
+
+let allRows = [];
+
+function renderStandings(rows){
+  const tbody = document.querySelector('#standingsTable tbody');
+  tbody.innerHTML = '';
+
+  rows.forEach(r=>{
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td>${r.position}</td>
+      <td>${r.ticket}</td>
+      <td>${r.owner}</td>
+      <td>${r.teams.join(' / ')}</td>
+      <td>${r.goals}</td>
+      <td>${r.gd}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+function renderRecent(matches){
+  const el = document.getElementById('recent');
+
+  if(!matches.length){
+    el.innerHTML = 'No matches yet';
+    return;
   }
 
-  let allStandings = [];
+  el.innerHTML = '<ul>' + matches.map(m =>
+    `<li>${m.home} vs ${m.away} — ${m.score}</li>`
+  ).join('') + '</ul>';
+}
 
-  // Tooltip state
-  let tooltipEl = null;
-  let tooltipPinned = false;
+function renderTeams(teams){
+  const tbody = document.querySelector('#teamsTable tbody');
+  tbody.innerHTML = '';
 
-  function ensureTooltip(){
-    if(tooltipEl) return tooltipEl;
-    tooltipEl = document.createElement('div');
-    tooltipEl.className = 'row-tooltip';
-    document.body.appendChild(tooltipEl);
+  teams.forEach(t=>{
+    const tr = document.createElement('tr');
 
-    tooltipEl.addEventListener('pointerdown', (e) => e.stopPropagation());
+    tr.innerHTML = `
+      <td>${t.team}</td>
+      <td>${t.gf}</td>
+      <td>${t.ga}</td>
+      <td>${t.gd}</td>
+      <td>${t.played}</td>
+    `;
 
-    document.addEventListener('pointerdown', (e) => {
-      if(!tooltipPinned) return;
-      if(tooltipEl && tooltipEl.contains(e.target)) return;
-      tooltipPinned = false;
-      hideTooltip();
-    });
+    tbody.appendChild(tr);
+  });
+}
 
-    window.addEventListener('scroll', () => {
-      if(tooltipPinned){
-        tooltipPinned = false;
-        hideTooltip();
-      }
-    }, { passive:true });
+function buildStandings(tickets, teamsData){
 
-    window.addEventListener('touchmove', () => {
-      if(tooltipPinned){
-        tooltipPinned = false;
-        hideTooltip();
-      }
-    }, { passive:true });
+  const teamMap = new Map(
+    teamsData.teams.map(t => [t.team, t])
+  );
 
-    return tooltipEl;
-  }
+  const rows = tickets.map(t=>{
 
-  function hideTooltip(){
-    if(!tooltipEl) return;
-    tooltipEl.style.display = 'none';
-  }
+    const goals = t.teams.reduce((sum,name)=>sum + (teamMap.get(name)?.gf || 0),0);
+    const gd    = t.teams.reduce((sum,name)=>sum + (teamMap.get(name)?.gd || 0),0);
 
-  function showRowTooltip(tr, pinned){
-    const tip = ensureTooltip();
-    const table = document.querySelector('#standingsTable');
-
-    const hideTicket = table.classList.contains('hide-ticket');
-    const hideTeams  = table.classList.contains('hide-teams');
-
-    const rows = [];
-    // Only show hidden fields
-    if(hideTeams)  rows.push(['Teams', tr.dataset.teams || '']);
-    if(hideTicket) rows.push(['Ticket', tr.dataset.ticket || '']);
-
-    // If nothing hidden, no tooltip
-    if(rows.length === 0){
-      hideTooltip();
-      return;
-    }
-
-    tip.innerHTML = `<div class="row">${
-      rows.map(([k,v]) => `<div class="k">${esc(k)}</div><div>${esc(v)}</div>`).join('')
-    }</div>`;
-
-    const rect = tr.getBoundingClientRect();
-    const x = Math.min(rect.left + 12, window.innerWidth - 24);
-    const y = Math.min(rect.bottom + 10, window.innerHeight - 24);
-
-    tip.style.left = `${x}px`;
-    tip.style.top  = `${y}px`;
-    tip.style.display = 'block';
-
-    tooltipPinned = pinned;
-  }
-
-  // Decide which columns to hide based on available width.
-  // Always visible: Pos, Owner, Goals, GD
-  // Hide order: Ticket (last priority) then Teams (next last) BUT per your priority:
-  // Pos → Owner → Goals → GD → Teams → Ticket
-  // => hide Ticket first, then Teams.
-  function adjustStandingsColumns(){
-    const wrap  = document.querySelector('#standingsWrap');
-    const table = document.querySelector('#standingsTable');
-    if(!wrap || !table) return;
-
-    table.classList.remove('hide-ticket','hide-teams','hide-gd');
-
-    const w = wrap.clientWidth;
-
-    // Tune these if you want Ticket/Teams to remain visible longer/shorter.
-    // (Ticket hides first; if even tighter, Teams hides too.)
-    if(w < 520) table.classList.add('hide-ticket');
-    if(w < 430) table.classList.add('hide-teams');
-  }
-
-  function renderStandings(rows){
-    const tbody = document.querySelector('#standingsTable tbody');
-    tbody.innerHTML = '';
-
-    for(const r of rows){
-      const tr = document.createElement('tr');
-
-      if(r.position===1) tr.classList.add('leader-1');
-      if(r.position===2) tr.classList.add('leader-2');
-      if(r.position===3) tr.classList.add('leader-3');
-
-      const teamsTitle = (r.displayTeams || r.teams || []).join(' / ');
-      const pills = (r.displayTeams || r.teams || []).map(t => `<span class="pill">${esc(t)}</span>`).join('');
-
-      tr.dataset.ticket = String(r.ticket ?? '');
-      tr.dataset.teams  = teamsTitle;
-
-      tr.innerHTML = `
-        <td data-col="pos">${r.position}</td>
-        <td data-col="ticket">${r.ticket}</td>
-        <td data-col="owner">${esc(r.owner)}</td>
-        <td data-col="teams" title="${esc(teamsTitle)}">${pills}</td>
-        <td data-col="goals">${r.goals}</td>
-        <td data-col="gd">${r.gd}</td>
-      `;
-
-      // Desktop hover: show tooltip only if something is hidden
-      tr.addEventListener('mouseenter', () => showRowTooltip(tr, false));
-      tr.addEventListener('mouseleave', () => { if(!tooltipPinned) hideTooltip(); });
-
-      // Mobile tap
-      tr.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        tooltipPinned = true;
-        showRowTooltip(tr, true);
-      });
-
-      tbody.appendChild(tr);
-    }
-
-    adjustStandingsColumns();
-  }
-
-  function renderRecent(matches){
-    const el = document.getElementById('recent');
-    if(!matches || !matches.length){
-      el.innerHTML = '<div class="small">No finished matches applied yet.</div>';
-      return;
-    }
-    el.innerHTML = '<ul>' + matches.map(m =>
-      `<li>${esc(m.home)} vs ${esc(m.away)} — FT ${m.ft.home}-${m.ft.away}${m.et ? `, ET ${m.et.home}-${m.et.away}` : ''}</li>`
-    ).join('') + '</ul>';
-  }
-
-  // Build pot membership from tickets.json (teams are in pot order [Pot1, Pot2, Pot3])
-  function buildPotMapFromTickets(mappedTickets){
-    const pot1 = new Set();
-    const pot2 = new Set();
-    const pot3 = new Set();
-
-    for(const t of (mappedTickets || [])){
-      const arr = t.mappedTeams || t.teams || [];
-      if(arr[0]) pot1.add(arr[0]);
-      if(arr[1]) pot2.add(arr[1]);
-      if(arr[2]) pot3.add(arr[2]);
-    }
-    return { pot1, pot2, pot3 };
-  }
-
-  function invertMap(obj){
-    const inv = {};
-    for(const k of Object.keys(obj || {})){
-      inv[obj[k]] = k;
-    }
-    return inv;
-  }
-
-  function preRank(teamName, reverseMap){
-    // Use PRE_RANK directly if possible; else try reverse mapping (providerName -> originalName)
-    const direct = PRE_RANK[teamName];
-    if(typeof direct === 'number') return direct;
-
-    const orig = reverseMap ? reverseMap[teamName] : null;
-    const mapped = orig ? PRE_RANK[orig] : undefined;
-    return (typeof mapped === 'number') ? mapped : 999;
-  }
-
-  function renderTeamsByPot(teamsRows, potMap, reverseNameMap){
-    const tbody = document.querySelector('#teamsTable tbody');
-    tbody.innerHTML = '';
-
-    // Sort within pot: GF desc, GD desc, least played asc, then pre-rank asc (1 best)
-    const sortFn = (a,b) =>
-      (b.gf - a.gf) ||
-      (b.gd - a.gd) ||
-      (a.played - b.played) ||
-      (preRank(a.team, reverseNameMap) - preRank(b.team, reverseNameMap)) ||
-      String(a.team).localeCompare(String(b.team));
-
-    function addGroup(title, teamNamesSet){
-      const hdr = document.createElement('tr');
-      hdr.className = 'group-row';
-      hdr.innerHTML = `<td colspan="5">${title}</td>`;
-      tbody.appendChild(hdr);
-
-      const rows = (teamsRows || [])
-        .filter(r => teamNamesSet.has(r.team))
-        .slice()
-        .sort(sortFn);
-
-      if(rows.length === 0){
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td colspan="5" class="small">No teams found for this pot.</td>`;
-        tbody.appendChild(tr);
-        return;
-      }
-
-      for(const r of rows){
-        const pr = preRank(r.team, reverseNameMap);
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td title="Pre-rank: ${pr}">${esc(r.team)}</td>
-          <td>${r.gf}</td>
-          <td>${r.ga}</td>
-          <td>${r.gd}</td>
-          <td>${r.played}</td>
-        `;
-        tbody.appendChild(tr);
-      }
-    }
-
-    addGroup('Pot 1', potMap.pot1);
-    addGroup('Pot 2', potMap.pot2);
-    addGroup('Pot 3', potMap.pot3);
-  }
-
-  function buildStandings(tickets, teamsData, nameMap){
-    const teamMap = new Map((teamsData.teams||[]).map(t => [t.team, t]));
-
-    // Map ticket team names to provider names (so totals match teams.json)
-    const mappedTickets = (tickets||[]).map(t => {
-      const displayTeams = t.teams || [];
-      const mappedTeams = displayTeams.map(n => (nameMap && nameMap[n]) ? nameMap[n] : n);
-      return { ...t, displayTeams, mappedTeams };
-    });
-
-    const rows = mappedTickets.map(t => ({
+    return {
       ticket: t.ticket,
       owner: t.owner,
-      teams: t.mappedTeams,
-      displayTeams: t.displayTeams,
-      goals: t.mappedTeams.reduce((s,x)=> s + (teamMap.get(x)?.gf || 0), 0),
-      gd:    t.mappedTeams.reduce((s,x)=> s + (teamMap.get(x)?.gd || 0), 0),
-      rank:  t.rank ?? t.ticket
-    }));
+      teams: t.teams,
+      goals,
+      gd,
+      rank: t.rank
+    };
+  });
 
-    rows.sort((a,b)=> b.goals-a.goals || b.gd-a.gd || b.rank-a.rank);
-    rows.forEach((r,i)=> r.position=i+1);
+  rows.sort((a,b)=> b.goals - a.goals || b.gd - a.gd || b.rank - a.rank);
 
-    return { standings: rows, mappedTickets };
-  }
+  rows.forEach((r,i)=> r.position = i + 1);
 
-  async function fetchJSON(url, fallback){
-    try{
-      const res = await fetch(url, {cache:'no-store'});
-      if(!res.ok) return fallback;
-      return await res.json();
-    }catch(e){
-      return fallback;
-    }
-  }
+  return rows;
+}
 
-  async function load(){
-    const [teamsData, recentData, tickets, nameMap] = await Promise.all([
-      fetchJSON(TEAMS_URL,   {generated_at:null, teams: []}),
-      fetchJSON(RECENT_URL,  {matches: []}),
-      fetchJSON(TICKETS_URL, []),
-      fetchJSON(TEAMMAP_URL, {})
-    ]);
+async function load(){
 
-    document.getElementById('updated').textContent =
-      teamsData.generated_at ? `Last updated: ${teamsData.generated_at}` : 'Last updated: unknown';
+  const [teamsData, recentData, tickets] = await Promise.all([
+    fetchJSON('./standings/teams.json'+CACHE),
+    fetchJSON('./standings/recent_finished.json'+CACHE),
+    fetchJSON('./data/tickets.json'+CACHE)
+  ]);
 
-    renderRecent((recentData && recentData.matches) ? recentData.matches : []);
+  document.getElementById('updated').textContent =
+    'Updated: ' + new Date().toLocaleTimeString();
 
-    const built = buildStandings(tickets, teamsData, nameMap);
-    allStandings = built.standings;
-    renderStandings(allStandings);
+  const rows = buildStandings(tickets, teamsData);
 
-    // Pot grouping uses mapped team names so it matches teams.json
-    const potMap = buildPotMapFromTickets(built.mappedTickets);
+  allRows = rows;
 
-    // Reverse mapping lets us apply your PRE_RANK even if provider uses different names
-    const reverseNameMap = invertMap(nameMap);
+  renderStandings(rows);
+  renderRecent(recentData.matches || []);
+  renderTeams(teamsData.teams || []);
+}
 
-    renderTeamsByPot(teamsData.teams || [], potMap, reverseNameMap);
-  }
+// search
+document.getElementById('search').addEventListener('input', e=>{
+  const q = e.target.value.toLowerCase();
 
-  // Search (filters ticket table)
-  document.getElementById('search').addEventListener('input', (e) => {
-    const q = e.target.value.trim().toLowerCase();
-    if(!q){ renderStandings(allStandings); return; }
-    const filtered = allStandings.filter(r =>
+  renderStandings(
+    allRows.filter(r =>
       String(r.ticket).includes(q) ||
-      String(r.owner).toLowerCase().includes(q) ||
-      (r.displayTeams || []).some(t => String(t).toLowerCase().includes(q)) ||
-      (r.teams || []).some(t => String(t).toLowerCase().includes(q))
-    );
-    renderStandings(filtered);
-  });
+      r.owner.toLowerCase().includes(q) ||
+      r.teams.some(t => t.toLowerCase().includes(q))
+    )
+  );
+});
 
-  window.addEventListener('resize', () => {
-    adjustStandingsColumns();
-    hideTooltip();
-  });
+load();
+setInterval(load, 120000);
 
-  load();
-  setInterval(load, 120000);
 </script>
+
 </body>
 </html>
