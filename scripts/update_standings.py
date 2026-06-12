@@ -16,6 +16,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 TICKETS_PATH = os.path.join(ROOT, "data", "tickets.json")
 MAP_PATH = os.path.join(ROOT, "data", "team_name_map.json")
+
 OUT_TEAMS = os.path.join(ROOT, "standings", "teams.json")
 OUT_RECENT = os.path.join(ROOT, "standings", "recent_finished.json")
 
@@ -31,7 +32,7 @@ def http_get(path, params=None):
 
     req = urllib.request.Request(url, headers=HEADERS)
 
-    with urllib.request.urlopen(req) as r:
+    with urllib.request.urlopen(req, timeout=30) as r:
         return json.loads(r.read().decode())
 
 
@@ -59,7 +60,7 @@ def counted_goals(score):
     rt_h, rt_a = pair(rt) if rt else (ft_h, ft_a)
     et_h, et_a = pair(et) if et else (0, 0)
 
-    # ✅ include extra time, exclude penalties
+    # ✅ include ET, exclude penalties
     if duration in ("EXTRA_TIME", "PENALTY_SHOOTOUT"):
         return rt_h + et_h, rt_a + et_a
 
@@ -67,22 +68,22 @@ def counted_goals(score):
 
 
 def main():
+    os.makedirs(os.path.join(ROOT, "standings"), exist_ok=True)
+
     with open(TICKETS_PATH) as f:
         tickets = json.load(f)
 
     with open(MAP_PATH) as f:
         name_map = json.load(f)
 
-    # ✅ sweepstake teams
     sweep_teams = {
         name_map.get(team, team)
         for t in tickets
         for team in t["teams"]
     }
 
-    print("Tracking teams:", sweep_teams)
+    print("Tracking:", sweep_teams)
 
-    # ✅ USE DATE WINDOW (CRITICAL FIX)
     today = datetime.utcnow()
     date_from = (today - timedelta(days=2)).strftime("%Y-%m-%d")
     date_to   = (today + timedelta(days=1)).strftime("%Y-%m-%d")
@@ -111,11 +112,10 @@ def main():
         home_raw = m["homeTeam"]["name"]
         away_raw = m["awayTeam"]["name"]
 
-        # ✅ map names
         home = name_map.get(home_raw, home_raw)
         away = name_map.get(away_raw, away_raw)
 
-        # ✅ CRITICAL FIX — include if EITHER team is relevant
+        # ✅ CRITICAL FIX
         if home not in team_stats and away not in team_stats:
             continue
 
@@ -153,7 +153,7 @@ def main():
     with open(OUT_RECENT, "w") as f:
         json.dump({"matches": finished[:5]}, f, indent=2)
 
-    print("✅ UPDATE COMPLETE")
+    print("✅ DONE")
 
 
 if __name__ == "__main__":
