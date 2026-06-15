@@ -1,6 +1,12 @@
 {
-  "generated_at": "2026-06-15T02:05:39.308973Z",
+  "generated_at": "2026-06-15T07:36:02.891080Z",
   "matches": [
+    {
+      "home": "Ivory Coast",
+      "away": "Ecuador",
+      "score": "1-0",
+      "utcDate": "2026-06-14T23:00:00Z"
+    },
     {
       "home": "Netherlands",
       "away": "Japan",
@@ -24,12 +30,6 @@
       "away": "Morocco",
       "score": "1-1",
       "utcDate": "2026-06-13T22:00:00Z"
-    },
-    {
-      "home": "Qatar",
-      "away": "Switzerland",
-      "score": "1-1",
-      "utcDate": "2026-06-13T19:00:00Z"
     }
   ]
 }
