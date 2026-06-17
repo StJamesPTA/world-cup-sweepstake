@@ -95,7 +95,7 @@ def main():
     # ✅ fetch matches (date range)
 
     date_from = "2026-01-01"
-    date_to   = "2026-12
+    date_to   = "2026-12-31"
 
     data = http_get("/matches", {
         "dateFrom": date_from,
