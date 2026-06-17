@@ -1,35 +1,4 @@
 {
-  "generated_at": "2026-06-17T17:20:18.178049Z",
-  "matches": [
-    {
-      "home": "Argentina",
-      "away": "Algeria",
-      "score": "3-0",
-      "utcDate": "2026-06-17T01:00:00Z"
-    },
-    {
-      "home": "Iraq",
-      "away": "Norway",
-      "score": "1-4",
-      "utcDate": "2026-06-16T22:00:00Z"
-    },
-    {
-      "home": "France",
-      "away": "Senegal",
-      "score": "3-1",
-      "utcDate": "2026-06-16T19:00:00Z"
-    },
-    {
-      "home": "Saudi Arabia",
-      "away": "Uruguay",
-      "score": "1-1",
-      "utcDate": "2026-06-15T22:00:00Z"
-    },
-    {
-      "home": "Belgium",
-      "away": "Egypt",
-      "score": "1-1",
-      "utcDate": "2026-06-15T19:00:00Z"
-    }
-  ]
+  "generated_at": "2026-06-17T19:21:56.981042Z",
+  "matches": []
 }
