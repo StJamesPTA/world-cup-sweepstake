@@ -92,14 +92,14 @@ def main():
     # ✅ fetch matches in chunks (THIS FIXES MISSING GAMES + 400 ERROR)
     matches = []
 
-matches = []
-
-start_date = datetime(2026, 1, 1)
-end_date   = datetime(2026, 12, 31)
-
-current = start_date
-
-while current <= end_date:
+    matches = []
+    
+    start_date = datetime(2026, 1, 1)
+    end_date   = datetime(2026, 12, 31)
+    
+    current = start_date
+    
+    while current <= end_date:
 
     chunk_end = min(current + timedelta(days=10), end_date)  # ✅ smaller chunks
 
