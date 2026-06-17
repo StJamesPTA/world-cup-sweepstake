@@ -90,7 +90,7 @@ def main():
     matches = []
 
     start_date = datetime.utcnow() - timedelta(days=30)
-    end_date   = datetime.utcnow()
+    end_date = datetime.utcnow() + timedelta(days=1)
 
     current = start_date
 
