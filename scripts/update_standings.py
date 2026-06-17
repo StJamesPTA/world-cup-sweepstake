@@ -90,18 +90,17 @@ def main():
     print("Tracking teams:", sweep_teams)
 
     # ✅ fetch matches in chunks (THIS FIXES MISSING GAMES + 400 ERROR)
-    matches = []
+matches = []
 
-    matches = []
-    
-    start_date = datetime(2026, 1, 1)
-    end_date   = datetime(2026, 12, 31)
-    
-    current = start_date
-    
-    while current <= end_date:
+start_date = datetime(2026, 1, 1)
+end_date   = datetime(2026, 12, 31)
 
-    chunk_end = min(current + timedelta(days=10), end_date)  # ✅ smaller chunks
+current = start_date
+
+while current <= end_date:
+
+    # ✅ everything inside loop MUST be indented
+    chunk_end = min(current + timedelta(days=10), end_date)
 
     print("Fetching:", current.date(), "to", chunk_end.date())
 
@@ -119,6 +118,10 @@ def main():
     current = chunk_end + timedelta(days=1)
 
 
+# ✅ OUTSIDE the loop (no indentation)
+matches = list({m["id"]: m for m in matches}.values())
+
+print("Total matches fetched:", len(matches))
 # ✅ dedupe properly
 matches = list({m["id"]: m for m in matches}.values())
 
