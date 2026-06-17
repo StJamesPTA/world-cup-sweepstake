@@ -22,6 +22,8 @@ OUT_RECENT = os.path.join(ROOT, "standings", "recent_finished.json")
 
 HEADERS = {"X-Auth-Token": TOKEN}
 
+COMP = "WC"  # competition code
+
 
 def http_get(path, params=None):
     url = BASE + path
@@ -68,16 +70,18 @@ def main():
 
     os.makedirs(os.path.join(ROOT, "standings"), exist_ok=True)
 
+    # ✅ load tickets
     with open(TICKETS_PATH) as f:
         tickets = json.load(f)
 
+    # ✅ load mapping
     try:
         with open(MAP_PATH) as f:
             name_map = json.load(f)
     except:
         name_map = {}
 
-    # ✅ Collect sweepstake teams
+    # ✅ gather sweepstake teams
     sweep_teams = set()
     for t in tickets:
         for team in t["teams"]:
@@ -85,11 +89,12 @@ def main():
 
     print("Tracking teams:", sweep_teams)
 
-    # ✅ Fetch matches in chunks
+    # ✅ fetch matches in chunks (THIS FIXES MISSING GAMES + 400 ERROR)
     matches = []
 
     start_date = datetime(2026, 1, 1)
     end_date   = datetime(2026, 12, 31)
+
     current = start_date
 
     while current <= end_date:
@@ -99,7 +104,7 @@ def main():
         print("Fetching:", current.date(), "to", chunk_end.date())
 
         try:
-            data = http_get("/matches", {
+            data = http_get(f"/competitions/{COMP}/matches", {
                 "dateFrom": current.strftime("%Y-%m-%d"),
                 "dateTo": chunk_end.strftime("%Y-%m-%d")
             })
@@ -111,9 +116,12 @@ def main():
 
         current = chunk_end + timedelta(days=1)
 
+    # ✅ dedupe matches (IMPORTANT)
+    matches = list({m["id"]: m for m in matches}.values())
+
     print("Total matches fetched:", len(matches))
 
-    # ✅ Initialize stats
+    # ✅ initialise stats
     team_stats = {
         t: {"team": t, "gf": 0, "ga": 0, "gd": 0, "played": 0}
         for t in sweep_teams
@@ -121,7 +129,7 @@ def main():
 
     finished = []
 
-    # ✅ Process matches
+    # ✅ process matches
     for m in matches:
 
         status = m.get("status")
@@ -134,6 +142,7 @@ def main():
         home = name_map.get(home_raw, home_raw)
         away = name_map.get(away_raw, away_raw)
 
+        # ✅ include if either team is relevant
         if home not in team_stats and away not in team_stats:
             continue
 
@@ -162,7 +171,7 @@ def main():
                 "utcDate": m.get("utcDate")
             })
 
-    # ✅ Compute GD
+    # ✅ compute GD
     for t in team_stats.values():
         t["gd"] = t["gf"] - t["ga"]
 
@@ -170,7 +179,7 @@ def main():
 
     generated_at = datetime.utcnow().isoformat() + "Z"
 
-    # ✅ Write outputs
+    # ✅ write output
     with open(OUT_TEAMS, "w") as f:
         json.dump({
             "generated_at": generated_at,
