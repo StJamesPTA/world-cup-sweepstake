@@ -92,29 +92,37 @@ def main():
     # ✅ fetch matches in chunks (THIS FIXES MISSING GAMES + 400 ERROR)
     matches = []
 
-    start_date = datetime(2026, 1, 1)
-    end_date   = datetime(2026, 12, 31)
+matches = []
 
-    current = start_date
+start_date = datetime(2026, 1, 1)
+end_date   = datetime(2026, 12, 31)
 
-    while current <= end_date:
+current = start_date
 
-        chunk_end = min(current + timedelta(days=30), end_date)
+while current <= end_date:
 
-        print("Fetching:", current.date(), "to", chunk_end.date())
+    chunk_end = min(current + timedelta(days=10), end_date)  # ✅ smaller chunks
 
-        try:
-            data = http_get(f"/competitions/{COMP}/matches", {
-                "dateFrom": current.strftime("%Y-%m-%d"),
-                "dateTo": chunk_end.strftime("%Y-%m-%d")
-            })
+    print("Fetching:", current.date(), "to", chunk_end.date())
 
-            matches.extend(data.get("matches", []))
+    try:
+        data = http_get("/matches", {
+            "dateFrom": current.strftime("%Y-%m-%d"),
+            "dateTo": chunk_end.strftime("%Y-%m-%d")
+        })
 
-        except Exception as e:
-            print("Chunk failed:", e)
+        matches.extend(data.get("matches", []))
 
-        current = chunk_end + timedelta(days=1)
+    except Exception as e:
+        print("Chunk failed:", e)
+
+    current = chunk_end + timedelta(days=1)
+
+
+# ✅ dedupe properly
+matches = list({m["id"]: m for m in matches}.values())
+
+print("Total matches fetched:", len(matches))
 
     # ✅ dedupe matches (IMPORTANT)
     matches = list({m["id"]: m for m in matches}.values())
