@@ -22,8 +22,6 @@ OUT_RECENT = os.path.join(ROOT, "standings", "recent_finished.json")
 
 HEADERS = {"X-Auth-Token": TOKEN}
 
-COMP = "WC"  # competition code
-
 
 def http_get(path, params=None):
     url = BASE + path
@@ -70,18 +68,17 @@ def main():
 
     os.makedirs(os.path.join(ROOT, "standings"), exist_ok=True)
 
-    # ✅ load tickets
+    # ✅ Load inputs
     with open(TICKETS_PATH) as f:
         tickets = json.load(f)
 
-    # ✅ load mapping
     try:
         with open(MAP_PATH) as f:
             name_map = json.load(f)
     except:
         name_map = {}
 
-    # ✅ gather sweepstake teams
+    # ✅ Collect sweepstake teams
     sweep_teams = set()
     for t in tickets:
         for team in t["teams"]:
@@ -89,50 +86,39 @@ def main():
 
     print("Tracking teams:", sweep_teams)
 
-    # ✅ fetch matches in chunks (THIS FIXES MISSING GAMES + 400 ERROR)
-matches = []
+    # ✅ Fetch matches in small chunks (WORKING VERSION)
+    matches = []
 
-start_date = datetime(2026, 1, 1)
-end_date   = datetime(2026, 12, 31)
+    start_date = datetime.utcnow() - timedelta(days=30)
+    end_date   = datetime.utcnow()
 
-current = start_date
+    current = start_date
 
-while current <= end_date:
+    while current <= end_date:
 
-    # ✅ everything inside loop MUST be indented
-    chunk_end = min(current + timedelta(days=10), end_date)
+        chunk_end = min(current + timedelta(days=7), end_date)
 
-    print("Fetching:", current.date(), "to", chunk_end.date())
+        print("Fetching:", current.date(), "to", chunk_end.date())
 
-    try:
-        data = http_get("/matches", {
-            "dateFrom": current.strftime("%Y-%m-%d"),
-            "dateTo": chunk_end.strftime("%Y-%m-%d")
-        })
+        try:
+            data = http_get("/matches", {
+                "dateFrom": current.strftime("%Y-%m-%d"),
+                "dateTo": chunk_end.strftime("%Y-%m-%d")
+            })
 
-        matches.extend(data.get("matches", []))
+            matches.extend(data.get("matches", []))
 
-    except Exception as e:
-        print("Chunk failed:", e)
+        except Exception as e:
+            print("Chunk failed:", e)
 
-    current = chunk_end + timedelta(days=1)
+        current = chunk_end + timedelta(days=1)
 
-
-# ✅ OUTSIDE the loop (no indentation)
-matches = list({m["id"]: m for m in matches}.values())
-
-print("Total matches fetched:", len(matches))
-# ✅ dedupe properly
-matches = list({m["id"]: m for m in matches}.values())
-
-print("Total matches fetched:", len(matches))
-
-    # ✅ dedupe matches (IMPORTANT)
+    # ✅ Remove duplicates
     matches = list({m["id"]: m for m in matches}.values())
 
     print("Total matches fetched:", len(matches))
 
-    # ✅ initialise stats
+    # ✅ Initialise stats
     team_stats = {
         t: {"team": t, "gf": 0, "ga": 0, "gd": 0, "played": 0}
         for t in sweep_teams
@@ -140,7 +126,7 @@ print("Total matches fetched:", len(matches))
 
     finished = []
 
-    # ✅ process matches
+    # ✅ Process matches
     for m in matches:
 
         status = m.get("status")
@@ -153,7 +139,6 @@ print("Total matches fetched:", len(matches))
         home = name_map.get(home_raw, home_raw)
         away = name_map.get(away_raw, away_raw)
 
-        # ✅ include if either team is relevant
         if home not in team_stats and away not in team_stats:
             continue
 
@@ -182,7 +167,7 @@ print("Total matches fetched:", len(matches))
                 "utcDate": m.get("utcDate")
             })
 
-    # ✅ compute GD
+    # ✅ Compute GD
     for t in team_stats.values():
         t["gd"] = t["gf"] - t["ga"]
 
@@ -190,7 +175,7 @@ print("Total matches fetched:", len(matches))
 
     generated_at = datetime.utcnow().isoformat() + "Z"
 
-    # ✅ write output
+    # ✅ Write outputs
     with open(OUT_TEAMS, "w") as f:
         json.dump({
             "generated_at": generated_at,
