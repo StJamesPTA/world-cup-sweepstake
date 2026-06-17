@@ -20,12 +20,9 @@ MAP_PATH     = os.path.join(ROOT, "data", "team_name_map.json")
 OUT_TEAMS  = os.path.join(ROOT, "standings", "teams.json")
 OUT_RECENT = os.path.join(ROOT, "standings", "recent_finished.json")
 
-HEADERS = {
-    "X-Auth-Token": TOKEN
-}
+HEADERS = {"X-Auth-Token": TOKEN}
 
 
-# ✅ HTTP helper
 def http_get(path, params=None):
     url = BASE + path
     if params:
@@ -37,7 +34,6 @@ def http_get(path, params=None):
         return json.loads(r.read().decode())
 
 
-# ✅ helpers
 def safe(x):
     return 0 if x is None else int(x)
 
@@ -62,19 +58,16 @@ def counted_goals(score):
     rt_h, rt_a = pair(rt) if rt else (ft_h, ft_a)
     et_h, et_a = pair(et) if et else (0, 0)
 
-    # ✅ include ET, exclude penalties
     if duration in ("EXTRA_TIME", "PENALTY_SHOOTOUT"):
         return rt_h + et_h, rt_a + et_a
 
     return ft_h, ft_a
 
 
-# ✅ ✅ MAIN FUNCTION
 def main():
 
     os.makedirs(os.path.join(ROOT, "standings"), exist_ok=True)
 
-    # ✅ load inputs
     with open(TICKETS_PATH) as f:
         tickets = json.load(f)
 
@@ -84,7 +77,7 @@ def main():
     except:
         name_map = {}
 
-    # ✅ collect teams from tickets
+    # ✅ Collect sweepstake teams
     sweep_teams = set()
     for t in tickets:
         for team in t["teams"]:
@@ -92,38 +85,35 @@ def main():
 
     print("Tracking teams:", sweep_teams)
 
-    # ✅ fetch matches (date range)
+    # ✅ Fetch matches in chunks
+    matches = []
 
-matches = []
+    start_date = datetime(2026, 1, 1)
+    end_date   = datetime(2026, 12, 31)
+    current = start_date
 
-# ✅ Chunked requests (30-day windows)
-start_date = datetime(2026, 6, 1)
-end_date   = datetime(2026, 7, 31)
+    while current <= end_date:
 
-current = start_date
+        chunk_end = min(current + timedelta(days=30), end_date)
 
-while current <= end_date:
+        print("Fetching:", current.date(), "to", chunk_end.date())
 
-    chunk_end = min(current + timedelta(days=30), end_date)
+        try:
+            data = http_get("/matches", {
+                "dateFrom": current.strftime("%Y-%m-%d"),
+                "dateTo": chunk_end.strftime("%Y-%m-%d")
+            })
 
-    print("Fetching:", current.date(), "to", chunk_end.date())
+            matches.extend(data.get("matches", []))
 
-    try:
-        data = http_get("/matches", {
-            "dateFrom": current.strftime("%Y-%m-%d"),
-            "dateTo": chunk_end.strftime("%Y-%m-%d")
-        })
+        except Exception as e:
+            print("Chunk failed:", e)
 
-        matches.extend(data.get("matches", []))
+        current = chunk_end + timedelta(days=1)
 
-    except Exception as e:
-        print("Chunk failed:", e)
+    print("Total matches fetched:", len(matches))
 
-    current = chunk_end + timedelta(days=1)
-
-print("Total matches fetched:", len(matches))
-
-    # ✅ init stats
+    # ✅ Initialize stats
     team_stats = {
         t: {"team": t, "gf": 0, "ga": 0, "gd": 0, "played": 0}
         for t in sweep_teams
@@ -131,7 +121,7 @@ print("Total matches fetched:", len(matches))
 
     finished = []
 
-    # ✅ process matches
+    # ✅ Process matches
     for m in matches:
 
         status = m.get("status")
@@ -141,17 +131,14 @@ print("Total matches fetched:", len(matches))
         home_raw = m.get("homeTeam", {}).get("name")
         away_raw = m.get("awayTeam", {}).get("name")
 
-        # ✅ map names if needed
         home = name_map.get(home_raw, home_raw)
         away = name_map.get(away_raw, away_raw)
 
-        # ✅ include if either team matters
         if home not in team_stats and away not in team_stats:
             continue
 
         ch, ca = counted_goals(m.get("score"))
 
-        # ✅ update stats
         if home in team_stats:
             team_stats[home]["gf"] += ch
             team_stats[home]["ga"] += ca
@@ -160,11 +147,11 @@ print("Total matches fetched:", len(matches))
             team_stats[away]["gf"] += ca
             team_stats[away]["ga"] += ch
 
-        # ✅ finished matches
         if status == "FINISHED":
 
             if home in team_stats:
                 team_stats[home]["played"] += 1
+
             if away in team_stats:
                 team_stats[away]["played"] += 1
 
@@ -175,17 +162,15 @@ print("Total matches fetched:", len(matches))
                 "utcDate": m.get("utcDate")
             })
 
-    # ✅ compute GD
+    # ✅ Compute GD
     for t in team_stats.values():
         t["gd"] = t["gf"] - t["ga"]
 
-    # ✅ sort recent
     finished.sort(key=lambda x: x["utcDate"], reverse=True)
 
-    # ✅ ✅ TIMESTAMP FIX
     generated_at = datetime.utcnow().isoformat() + "Z"
 
-    # ✅ ✅ WRITE OUTPUT (CORRECTLY PLACED ✅)
+    # ✅ Write outputs
     with open(OUT_TEAMS, "w") as f:
         json.dump({
             "generated_at": generated_at,
@@ -201,6 +186,6 @@ print("Total matches fetched:", len(matches))
     print("✅ DONE")
 
 
-# ✅ ✅ ENTRY POINT
 if __name__ == "__main__":
     main()
+``
