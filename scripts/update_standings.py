@@ -94,15 +94,34 @@ def main():
 
     # ✅ fetch matches (date range)
 
-    date_from = "2026-06-01"
-    date_to   = "2026-07-31"
+matches = []
 
-    data = http_get("/matches", {
-        "dateFrom": date_from,
-        "dateTo": date_to
-    })
+# ✅ Chunked requests (30-day windows)
+start_date = datetime(2026, 6, 1)
+end_date   = datetime(2026, 7, 31)
 
-    matches = data.get("matches", [])
+current = start_date
+
+while current <= end_date:
+
+    chunk_end = min(current + timedelta(days=30), end_date)
+
+    print("Fetching:", current.date(), "to", chunk_end.date())
+
+    try:
+        data = http_get("/matches", {
+            "dateFrom": current.strftime("%Y-%m-%d"),
+            "dateTo": chunk_end.strftime("%Y-%m-%d")
+        })
+
+        matches.extend(data.get("matches", []))
+
+    except Exception as e:
+        print("Chunk failed:", e)
+
+    current = chunk_end + timedelta(days=1)
+
+print("Total matches fetched:", len(matches))
     print("Matches returned:", len(matches))
 
     # ✅ init stats
