@@ -122,7 +122,6 @@ while current <= end_date:
     current = chunk_end + timedelta(days=1)
 
 print("Total matches fetched:", len(matches))
-    print("Matches returned:", len(matches))
 
     # ✅ init stats
     team_stats = {
