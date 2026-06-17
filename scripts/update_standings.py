@@ -93,9 +93,9 @@ def main():
     print("Tracking teams:", sweep_teams)
 
     # ✅ fetch matches (date range)
-    today = datetime.utcnow()
-    date_from = (today - timedelta(days=2)).strftime("%Y-%m-%d")
-    date_to   = (today + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    date_from = "2026-01-01"
+    date_to   = "2026-12
 
     data = http_get("/matches", {
         "dateFrom": date_from,
