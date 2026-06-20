@@ -152,7 +152,7 @@ def main():
             team_stats[away]["gf"] += ca
             team_stats[away]["ga"] += ch
 
-        if status == "FINISHED":
+        if status in ("FINISHED", "IN_PLAY"):
 
             if home in team_stats:
                 team_stats[home]["played"] += 1
