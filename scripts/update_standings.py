@@ -44,27 +44,39 @@ def pair(d):
     return safe(d.get("home")), safe(d.get("away"))
 
 
+# ✅ ✅ FIXED — always uses correct score source
 def counted_goals(score):
     if not score:
         return 0, 0
 
+    ft = score.get("fullTime") or {}
+    rt = score.get("regularTime") or {}
+    et = score.get("extraTime") or {}
+
+    def valid(s):
+        return s and s.get("home") is not None and s.get("away") is not None
+
+    # ✅ pick correct score (THIS fixes your issue)
+    if valid(ft):
+        h, a = pair(ft)
+    elif valid(rt):
+        h, a = pair(rt)
+    elif valid(et):
+        h, a = pair(et)
+    else:
+        return 0, 0
+
     duration = score.get("duration")
 
-    ft = score.get("fullTime") or {}
-    rt = score.get("regularTime")
-    et = score.get("extraTime")
-
-    ft_h, ft_a = pair(ft)
-    rt_h, rt_a = pair(rt) if rt else (ft_h, ft_a)
-    et_h, et_a = pair(et) if et else (0, 0)
-
-    if duration in ("EXTRA_TIME", "PENALTY_SHOOTOUT"):
+    if duration in ("EXTRA_TIME", "PENALTY_SHOOTOUT") and valid(rt) and valid(et):
+        rt_h, rt_a = pair(rt)
+        et_h, et_a = pair(et)
         return rt_h + et_h, rt_a + et_a
 
-    return ft_h, ft_a
+    return h, a
 
 
-# ✅ Robust team name normalisation
+# ✅ Name normalisation (kept simple + safe)
 def normalise(name, name_map):
     if not name:
         return ""
@@ -91,7 +103,6 @@ def main():
 
     os.makedirs(os.path.join(ROOT, "standings"), exist_ok=True)
 
-    # ✅ load inputs
     with open(TICKETS_PATH) as f:
         tickets = json.load(f)
 
@@ -109,7 +120,7 @@ def main():
 
     print("Tracking teams:", sweep_teams)
 
-    # ✅ FETCH MATCHES (chunked)
+    # ✅ ✅ fetch matches
     matches = []
 
     start_date = datetime.utcnow() - timedelta(days=30)
@@ -138,38 +149,27 @@ def main():
 
     print("Fetched raw matches:", len(matches))
 
-    # ✅ ✅ ✅ CRITICAL FIX — FILTER BAD MATCH DATA FIRST
+    # ✅ ✅ ✅ FILTER + KEEP ONLY VALID SCORES
     valid_matches = []
 
     for m in matches:
+        score = m.get("score", {})
+        ch, ca = counted_goals(score)
 
-        score_block = m.get("score", {})
-        
-        ft = score_block.get("fullTime")
-        rt = score_block.get("regularTime")
-        et = score_block.get("extraTime")
-        
-        # ✅ use whichever exists
-        valid_score = ft or rt or et
-        
-        if not valid_score or valid_score.get("home") is None or valid_score.get("away") is None:
+        if ch == 0 and ca == 0:
             continue
-
 
         valid_matches.append(m)
 
     print("After score filter:", len(valid_matches))
 
-    # ✅ ✅ ✅ SAFE DEDUPE (after filtering)
-    deduped = {}
-    for m in valid_matches:
-        deduped[m["id"]] = m
-
+    # ✅ ✅ DEDUPE (safe now)
+    deduped = {m["id"]: m for m in valid_matches}
     matches = list(deduped.values())
 
     print("After dedupe:", len(matches))
 
-    # ✅ stats
+    # ✅ stats init
     team_stats = {
         t: {"team": t, "gf": 0, "ga": 0, "gd": 0, "played": 0}
         for t in sweep_teams
@@ -180,17 +180,12 @@ def main():
     # ✅ process matches
     for m in matches:
 
-        status = m.get("status")
-        if status in ("SCHEDULED", "TIMED"):
-            continue
-
         home_raw = m.get("homeTeam", {}).get("name")
         away_raw = m.get("awayTeam", {}).get("name")
 
         home = normalise(home_raw, name_map)
         away = normalise(away_raw, name_map)
 
-        # ✅ include if relevant
         if home not in team_stats and away not in team_stats:
             continue
 
@@ -204,23 +199,14 @@ def main():
             team_stats[away]["gf"] += ca
             team_stats[away]["ga"] += ch
 
-        # ✅ include finished + live
-        if status in ("FINISHED", "IN_PLAY"):
+        finished.append({
+            "home": home,
+            "away": away,
+            "score": f"{ch}-{ca}",
+            "utcDate": m.get("utcDate")
+        })
 
-            if home in team_stats:
-                team_stats[home]["played"] += 1
-
-            if away in team_stats:
-                team_stats[away]["played"] += 1
-
-            finished.append({
-                "home": home,
-                "away": away,
-                "score": f"{ch}-{ca}",
-                "utcDate": m.get("utcDate")
-            })
-
-    # ✅ GD
+    # ✅ compute GD
     for t in team_stats.values():
         t["gd"] = t["gf"] - t["ga"]
 
@@ -228,7 +214,7 @@ def main():
 
     generated_at = datetime.utcnow().isoformat() + "Z"
 
-    # ✅ write output
+    # ✅ output
     with open(OUT_TEAMS, "w") as f:
         json.dump({
             "generated_at": generated_at,
