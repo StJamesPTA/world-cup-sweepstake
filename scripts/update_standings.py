@@ -142,11 +142,19 @@ def main():
     valid_matches = []
 
     for m in matches:
-        score = m.get("score", {}).get("fullTime")
 
-        # ✅ only keep matches with real scores
-        if not score or score.get("home") is None or score.get("away") is None:
+        score_block = m.get("score", {})
+        
+        ft = score_block.get("fullTime")
+        rt = score_block.get("regularTime")
+        et = score_block.get("extraTime")
+        
+        # ✅ use whichever exists
+        valid_score = ft or rt or et
+        
+        if not valid_score or valid_score.get("home") is None or valid_score.get("away") is None:
             continue
+
 
         valid_matches.append(m)
 
