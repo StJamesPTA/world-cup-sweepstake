@@ -2,9 +2,8 @@
 
 import os
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 import urllib.request
-import urllib.parse
 
 BASE = "https://api.football-data.org/v4"
 TOKEN = os.environ.get("FOOTBALL_DATA_TOKEN")
@@ -23,11 +22,8 @@ OUT_RECENT = os.path.join(ROOT, "standings", "recent_finished.json")
 HEADERS = {"X-Auth-Token": TOKEN}
 
 
-def http_get(path, params=None):
+def http_get(path):
     url = BASE + path
-    if params:
-        url += "?" + urllib.parse.urlencode(params)
-
     req = urllib.request.Request(url, headers=HEADERS)
 
     with urllib.request.urlopen(req, timeout=30) as r:
@@ -44,6 +40,7 @@ def pair(d):
     return safe(d.get("home")), safe(d.get("away"))
 
 
+# ✅ correct score extraction (handles RT vs FT)
 def counted_goals(score):
     if not score:
         return None, None
@@ -67,6 +64,7 @@ def counted_goals(score):
     return h, a
 
 
+# ✅ safe name mapping (NO "United" bug)
 def normalise(name, name_map):
     if not name:
         return ""
@@ -74,8 +72,17 @@ def normalise(name, name_map):
     name = name.strip()
     lower = name.lower()
 
-    if "united" in lower or lower in ("usa", "us", "u.s.a."):
+    if lower in ("united states", "united states of america", "usa", "us"):
         return "USA"
+
+    if lower in ("korea republic", "south korea"):
+        return "South Korea"
+
+    if lower in ("ir iran", "iran"):
+        return "Iran"
+
+    if lower in ("czech republic", "czechia"):
+        return "Czechia"
 
     return name_map.get(name, name)
 
@@ -93,6 +100,7 @@ def main():
     except:
         name_map = {}
 
+    # ✅ collect teams
     sweep_teams = set()
     for t in tickets:
         for team in t["teams"]:
@@ -100,49 +108,13 @@ def main():
 
     print("Tracking teams:", sweep_teams)
 
-    # ✅ FETCH MATCHES
-    matches = []
+    # ✅ ✅ ✅ FETCH ALL WORLD CUP MATCHES (NO FILTERS NEEDED)
+    print("Fetching all World Cup matches...")
 
-    start_date = datetime.utcnow() - timedelta(days=30)
-    end_date   = datetime.utcnow() + timedelta(days=2)
+    data = http_get("/competitions/WC/matches")
+    matches = data.get("matches", [])
 
-    current = start_date
-
-    while current <= end_date:
-
-        chunk_end = min(current + timedelta(days=7), end_date)
-
-        print("Fetching:", current.date(), "to", chunk_end.date())
-
-        try:
-            data = http_get("/matches", {
-                "dateFrom": current.strftime("%Y-%m-%d"),
-                "dateTo": chunk_end.strftime("%Y-%m-%d")
-            })
-
-            matches.extend(data.get("matches", []))
-
-        except Exception as e:
-            print("Chunk failed:", e)
-
-        current = chunk_end + timedelta(days=1)
-
-    print("\n=== TOTAL RAW MATCHES ===", len(matches))
-
-    # ✅ DEBUG — show ALL USA matches RAW
-    print("\n=== USA RAW MATCHES ===")
-    for m in matches:
-        home = m.get("homeTeam", {}).get("name")
-        away = m.get("awayTeam", {}).get("name")
-
-        if "United" in str(home) or "United" in str(away):
-            print(json.dumps(m, indent=2))
-
-    # ✅ dedupe only
-    matches = {m["id"]: m for m in matches}.values()
-    matches = list(matches)
-
-    print("\n=== AFTER DEDUPE ===", len(matches))
+    print("Total WC matches returned:", len(matches))
 
     team_stats = {
         t: {"team": t, "gf": 0, "ga": 0, "gd": 0, "played": 0}
@@ -151,8 +123,11 @@ def main():
 
     finished = []
 
-    # ✅ PROCESS MATCHES
     for m in matches:
+
+        # ✅ ONLY finished matches
+        if m.get("status") != "FINISHED":
+            continue
 
         home_raw = m.get("homeTeam", {}).get("name")
         away_raw = m.get("awayTeam", {}).get("name")
@@ -160,28 +135,23 @@ def main():
         home = normalise(home_raw, name_map)
         away = normalise(away_raw, name_map)
 
-        ch, ca = counted_goals(m.get("score"))
-
-        # ✅ DEBUG USA processing
-        if "United" in str(home_raw) or "United" in str(away_raw):
-            print("\n=== USA PROCESS CHECK ===")
-            print("RAW:", home_raw, "vs", away_raw)
-            print("NORMALISED:", home, "vs", away)
-            print("GOALS:", ch, "-", ca)
-
         if home not in team_stats and away not in team_stats:
             continue
 
-        if ch is None and ca is None:
+        ch, ca = counted_goals(m.get("score"))
+
+        if ch is None or ca is None:
             continue
 
         if home in team_stats:
             team_stats[home]["gf"] += ch
             team_stats[home]["ga"] += ca
+            team_stats[home]["played"] += 1
 
         if away in team_stats:
             team_stats[away]["gf"] += ca
             team_stats[away]["ga"] += ch
+            team_stats[away]["played"] += 1
 
         finished.append({
             "home": home,
@@ -190,6 +160,7 @@ def main():
             "utcDate": m.get("utcDate")
         })
 
+    # ✅ calculate GD
     for t in team_stats.values():
         t["gd"] = t["gf"] - t["ga"]
 
@@ -197,6 +168,7 @@ def main():
 
     generated_at = datetime.utcnow().isoformat() + "Z"
 
+    # ✅ output
     with open(OUT_TEAMS, "w") as f:
         json.dump({
             "generated_at": generated_at,
