@@ -151,14 +151,23 @@ def main():
 
     # ✅ ✅ ✅ FILTER + KEEP ONLY VALID SCORES
     valid_matches = []
-
+    
     for m in matches:
         score = m.get("score", {})
-        ch, ca = counted_goals(score)
+    
+        ft = score.get("fullTime") or {}
+        rt = score.get("regularTime") or {}
+        et = score.get("extraTime") or {}
+    
+        def has_score(s):
+            return (
+                s
+                and s.get("home") is not None
+                and s.get("away") is not None
+            )
 
-        if ch == 0 and ca == 0:
-            continue
-
+    # ✅ keep match if ANY score exists (even 0–0)
+    if has_score(ft) or has_score(rt) or has_score(et):
         valid_matches.append(m)
 
     print("After score filter:", len(valid_matches))
