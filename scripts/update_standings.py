@@ -64,22 +64,25 @@ def counted_goals(score):
     return ft_h, ft_a
 
 
-# ✅ ✅ ✅ Robust name normalisation (THIS FIXES USA ISSUE)
+# ✅ ✅ ✅ BULLETPROOF NORMALISATION (USA + others)
 def normalise(name, name_map):
+
     if not name:
         return ""
 
     name = name.strip()
-
     lower = name.lower()
 
-    if "united states" in lower:
+    if lower in ("united states", "united states of america", "usa", "us"):
         return "USA"
-    if "korea" in lower:
+
+    if lower in ("korea republic", "south korea"):
         return "South Korea"
-    if "iran" in lower:
+
+    if lower in ("ir iran", "iran"):
         return "Iran"
-    if "czech" in lower:
+
+    if lower in ("czech republic", "czechia"):
         return "Czechia"
 
     return name_map.get(name, name)
@@ -89,11 +92,10 @@ def main():
 
     os.makedirs(os.path.join(ROOT, "standings"), exist_ok=True)
 
-    # ✅ load tickets
+    # ✅ load inputs
     with open(TICKETS_PATH) as f:
         tickets = json.load(f)
 
-    # ✅ load mapping
     try:
         with open(MAP_PATH) as f:
             name_map = json.load(f)
@@ -108,7 +110,7 @@ def main():
 
     print("Tracking teams:", sweep_teams)
 
-    # ✅ ✅ FETCH MATCHES (chunked + safe)
+    # ✅ ✅ MATCH FETCH (correct + stable)
     matches = []
 
     start_date = datetime.utcnow() - timedelta(days=30)
@@ -135,12 +137,30 @@ def main():
 
         current = chunk_end + timedelta(days=1)
 
-    # ✅ dedupe matches
-    matches = list({m["id"]: m for m in matches}.values())
+    print("Fetched raw matches:", len(matches))
 
-    print("Total matches fetched:", len(matches))
+    # ✅ ✅ ✅ FIXED DEDUPE (CRITICAL)
+    deduped = {}
 
-    # ✅ init team stats
+    for m in matches:
+        mid = m["id"]
+
+        if mid not in deduped:
+            deduped[mid] = m
+        else:
+            existing = deduped[mid]
+
+            new_score = m.get("score", {}).get("fullTime")
+            old_score = existing.get("score", {}).get("fullTime")
+
+            if new_score and not old_score:
+                deduped[mid] = m
+
+    matches = list(deduped.values())
+
+    print("After dedupe:", len(matches))
+
+    # ✅ stats
     team_stats = {
         t: {"team": t, "gf": 0, "ga": 0, "gd": 0, "played": 0}
         for t in sweep_teams
@@ -161,7 +181,7 @@ def main():
         home = normalise(home_raw, name_map)
         away = normalise(away_raw, name_map)
 
-        # ✅ include if either team is relevant
+        # ✅ include if either matters
         if home not in team_stats and away not in team_stats:
             continue
 
@@ -175,7 +195,7 @@ def main():
             team_stats[away]["gf"] += ca
             team_stats[away]["ga"] += ch
 
-        # ✅ include LIVE + FINISHED games
+        # ✅ count both finished + live
         if status in ("FINISHED", "IN_PLAY"):
 
             if home in team_stats:
@@ -191,16 +211,15 @@ def main():
                 "utcDate": m.get("utcDate")
             })
 
-    # ✅ compute GD
+    # ✅ GD
     for t in team_stats.values():
         t["gd"] = t["gf"] - t["ga"]
 
     finished.sort(key=lambda x: x["utcDate"], reverse=True)
 
-    # ✅ timestamp
     generated_at = datetime.utcnow().isoformat() + "Z"
 
-    # ✅ write output
+    # ✅ output
     with open(OUT_TEAMS, "w") as f:
         json.dump({
             "generated_at": generated_at,
