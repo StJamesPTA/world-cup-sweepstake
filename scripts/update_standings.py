@@ -148,25 +148,12 @@ def main():
 
     print("Fetched raw matches:", len(matches))
 
-    # ✅ ✅ CLEAN FILTER (THIS IS THE KEY)
-    valid_matches = []
-
-    for m in matches:
-        ch, ca = counted_goals(m.get("score"))
-
-        # ✅ ONLY skip if score truly missing
-        if ch is None or ca is None:
-            continue
-
-        valid_matches.append(m)
-
-    print("After score filter:", len(valid_matches))
-
-    # ✅ dedupe by ID
-    matches = {m["id"]: m for m in valid_matches}.values()
+    # ✅ dedupe only
+    matches = {m["id"]: m for m in matches}.values()
     matches = list(matches)
-
+    
     print("After dedupe:", len(matches))
+
 
     # ✅ stats
     team_stats = {
