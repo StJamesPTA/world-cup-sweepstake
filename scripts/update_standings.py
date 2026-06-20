@@ -185,6 +185,12 @@ def main():
         if home not in team_stats and away not in team_stats:
             continue
 
+        score = m.get("score", {}).get("fullTime")
+        
+        # ✅ SKIP matches that don't have real goals yet
+        if not score or score.get("home") is None or score.get("away") is None:
+            continue
+        
         ch, ca = counted_goals(m.get("score"))
 
         if home in team_stats:
