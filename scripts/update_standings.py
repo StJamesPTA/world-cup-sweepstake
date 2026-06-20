@@ -133,11 +133,12 @@ def main():
         if status in ("SCHEDULED", "TIMED"):
             continue
 
-        home_raw = m.get("homeTeam", {}).get("name")
-        away_raw = m.get("awayTeam", {}).get("name")
+        home_raw = (m.get("homeTeam", {}).get("name") or "").strip()
+        away_raw = (m.get("awayTeam", {}).get("name") or "").strip()
+        
+        home = name_map.get(home_raw) or name_map.get(home_raw.title()) or home_raw
+        away = name_map.get(away_raw) or name_map.get(away_raw.title()) or away_raw
 
-        home = name_map.get(home_raw, home_raw)
-        away = name_map.get(away_raw, away_raw)
 
         if home not in team_stats and away not in team_stats:
             continue
