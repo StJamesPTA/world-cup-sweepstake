@@ -64,9 +64,8 @@ def counted_goals(score):
     return ft_h, ft_a
 
 
-# ✅ ✅ ✅ BULLETPROOF NORMALISATION (USA + others)
+# ✅ Robust team name normalisation
 def normalise(name, name_map):
-
     if not name:
         return ""
 
@@ -110,7 +109,7 @@ def main():
 
     print("Tracking teams:", sweep_teams)
 
-    # ✅ ✅ MATCH FETCH (correct + stable)
+    # ✅ FETCH MATCHES (chunked)
     matches = []
 
     start_date = datetime.utcnow() - timedelta(days=30)
@@ -139,22 +138,24 @@ def main():
 
     print("Fetched raw matches:", len(matches))
 
-    # ✅ ✅ ✅ FIXED DEDUPE (CRITICAL)
-    deduped = {}
+    # ✅ ✅ ✅ CRITICAL FIX — FILTER BAD MATCH DATA FIRST
+    valid_matches = []
 
     for m in matches:
-        mid = m["id"]
+        score = m.get("score", {}).get("fullTime")
 
-        if mid not in deduped:
-            deduped[mid] = m
-        else:
-            existing = deduped[mid]
+        # ✅ only keep matches with real scores
+        if not score or score.get("home") is None or score.get("away") is None:
+            continue
 
-            new_score = m.get("score", {}).get("fullTime")
-            old_score = existing.get("score", {}).get("fullTime")
+        valid_matches.append(m)
 
-            if new_score and not old_score:
-                deduped[mid] = m
+    print("After score filter:", len(valid_matches))
+
+    # ✅ ✅ ✅ SAFE DEDUPE (after filtering)
+    deduped = {}
+    for m in valid_matches:
+        deduped[m["id"]] = m
 
     matches = list(deduped.values())
 
@@ -181,16 +182,10 @@ def main():
         home = normalise(home_raw, name_map)
         away = normalise(away_raw, name_map)
 
-        # ✅ include if either matters
+        # ✅ include if relevant
         if home not in team_stats and away not in team_stats:
             continue
 
-        score = m.get("score", {}).get("fullTime")
-        
-        # ✅ SKIP matches that don't have real goals yet
-        if not score or score.get("home") is None or score.get("away") is None:
-            continue
-        
         ch, ca = counted_goals(m.get("score"))
 
         if home in team_stats:
@@ -201,7 +196,7 @@ def main():
             team_stats[away]["gf"] += ca
             team_stats[away]["ga"] += ch
 
-        # ✅ count both finished + live
+        # ✅ include finished + live
         if status in ("FINISHED", "IN_PLAY"):
 
             if home in team_stats:
@@ -225,7 +220,7 @@ def main():
 
     generated_at = datetime.utcnow().isoformat() + "Z"
 
-    # ✅ output
+    # ✅ write output
     with open(OUT_TEAMS, "w") as f:
         json.dump({
             "generated_at": generated_at,
