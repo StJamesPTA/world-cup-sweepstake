@@ -44,7 +44,6 @@ def pair(d):
     return safe(d.get("home")), safe(d.get("away"))
 
 
-# ✅ CORE: correctly picks the right score source
 def counted_goals(score):
     if not score:
         return None, None
@@ -65,17 +64,9 @@ def counted_goals(score):
     else:
         return None, None
 
-    duration = score.get("duration")
-
-    if duration in ("EXTRA_TIME", "PENALTY_SHOOTOUT") and valid(rt) and valid(et):
-        rt_h, rt_a = pair(rt)
-        et_h, et_a = pair(et)
-        return rt_h + et_h, rt_a + et_a
-
     return h, a
 
 
-# ✅ mapping
 def normalise(name, name_map):
     if not name:
         return ""
@@ -83,17 +74,8 @@ def normalise(name, name_map):
     name = name.strip()
     lower = name.lower()
 
-    if lower in ("united states", "united states of america", "usa", "us"):
+    if "united" in lower or lower in ("usa", "us", "u.s.a."):
         return "USA"
-
-    if lower in ("korea republic", "south korea"):
-        return "South Korea"
-
-    if lower in ("ir iran", "iran"):
-        return "Iran"
-
-    if lower in ("czech republic", "czechia"):
-        return "Czechia"
 
     return name_map.get(name, name)
 
@@ -111,7 +93,6 @@ def main():
     except:
         name_map = {}
 
-    # ✅ teams in sweepstake
     sweep_teams = set()
     for t in tickets:
         for team in t["teams"]:
@@ -146,16 +127,23 @@ def main():
 
         current = chunk_end + timedelta(days=1)
 
-    print("Fetched raw matches:", len(matches))
+    print("\n=== TOTAL RAW MATCHES ===", len(matches))
+
+    # ✅ DEBUG — show ALL USA matches RAW
+    print("\n=== USA RAW MATCHES ===")
+    for m in matches:
+        home = m.get("homeTeam", {}).get("name")
+        away = m.get("awayTeam", {}).get("name")
+
+        if "United" in str(home) or "United" in str(away):
+            print(json.dumps(m, indent=2))
 
     # ✅ dedupe only
     matches = {m["id"]: m for m in matches}.values()
     matches = list(matches)
-    
-    print("After dedupe:", len(matches))
 
+    print("\n=== AFTER DEDUPE ===", len(matches))
 
-    # ✅ stats
     team_stats = {
         t: {"team": t, "gf": 0, "ga": 0, "gd": 0, "played": 0}
         for t in sweep_teams
@@ -163,6 +151,7 @@ def main():
 
     finished = []
 
+    # ✅ PROCESS MATCHES
     for m in matches:
 
         home_raw = m.get("homeTeam", {}).get("name")
@@ -171,13 +160,19 @@ def main():
         home = normalise(home_raw, name_map)
         away = normalise(away_raw, name_map)
 
+        ch, ca = counted_goals(m.get("score"))
+
+        # ✅ DEBUG USA processing
+        if "United" in str(home_raw) or "United" in str(away_raw):
+            print("\n=== USA PROCESS CHECK ===")
+            print("RAW:", home_raw, "vs", away_raw)
+            print("NORMALISED:", home, "vs", away)
+            print("GOALS:", ch, "-", ca)
+
         if home not in team_stats and away not in team_stats:
             continue
 
-        ch, ca = counted_goals(m.get("score"))
-
-        # ✅ safety check
-        if ch is None or ca is None:
+        if ch is None and ca is None:
             continue
 
         if home in team_stats:
@@ -195,7 +190,6 @@ def main():
             "utcDate": m.get("utcDate")
         })
 
-    # ✅ GD
     for t in team_stats.values():
         t["gd"] = t["gf"] - t["ga"]
 
