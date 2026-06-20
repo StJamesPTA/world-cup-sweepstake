@@ -44,10 +44,10 @@ def pair(d):
     return safe(d.get("home")), safe(d.get("away"))
 
 
-# ✅ ✅ FIXED — always uses correct score source
+# ✅ CORE: correctly picks the right score source
 def counted_goals(score):
     if not score:
-        return 0, 0
+        return None, None
 
     ft = score.get("fullTime") or {}
     rt = score.get("regularTime") or {}
@@ -56,7 +56,6 @@ def counted_goals(score):
     def valid(s):
         return s and s.get("home") is not None and s.get("away") is not None
 
-    # ✅ pick correct score (THIS fixes your issue)
     if valid(ft):
         h, a = pair(ft)
     elif valid(rt):
@@ -64,7 +63,7 @@ def counted_goals(score):
     elif valid(et):
         h, a = pair(et)
     else:
-        return 0, 0
+        return None, None
 
     duration = score.get("duration")
 
@@ -76,7 +75,7 @@ def counted_goals(score):
     return h, a
 
 
-# ✅ Name normalisation (kept simple + safe)
+# ✅ mapping
 def normalise(name, name_map):
     if not name:
         return ""
@@ -112,7 +111,7 @@ def main():
     except:
         name_map = {}
 
-    # ✅ collect teams
+    # ✅ teams in sweepstake
     sweep_teams = set()
     for t in tickets:
         for team in t["teams"]:
@@ -120,7 +119,7 @@ def main():
 
     print("Tracking teams:", sweep_teams)
 
-    # ✅ ✅ fetch matches
+    # ✅ FETCH MATCHES
     matches = []
 
     start_date = datetime.utcnow() - timedelta(days=30)
@@ -149,36 +148,27 @@ def main():
 
     print("Fetched raw matches:", len(matches))
 
-    # ✅ ✅ ✅ FILTER + KEEP ONLY VALID SCORES
+    # ✅ ✅ CLEAN FILTER (THIS IS THE KEY)
     valid_matches = []
-    
-    for m in matches:
-        score = m.get("score", {})
-    
-        ft = score.get("fullTime") or {}
-        rt = score.get("regularTime") or {}
-        et = score.get("extraTime") or {}
-    
-        def has_score(s):
-            return (
-                s
-                and s.get("home") is not None
-                and s.get("away") is not None
-            )
 
-    # ✅ keep match if ANY score exists (even 0–0)
-    if has_score(ft) or has_score(rt) or has_score(et):
+    for m in matches:
+        ch, ca = counted_goals(m.get("score"))
+
+        # ✅ ONLY skip if score truly missing
+        if ch is None or ca is None:
+            continue
+
         valid_matches.append(m)
 
     print("After score filter:", len(valid_matches))
 
-    # ✅ ✅ DEDUPE (safe now)
-    deduped = {m["id"]: m for m in valid_matches}
-    matches = list(deduped.values())
+    # ✅ dedupe by ID
+    matches = {m["id"]: m for m in valid_matches}.values()
+    matches = list(matches)
 
     print("After dedupe:", len(matches))
 
-    # ✅ stats init
+    # ✅ stats
     team_stats = {
         t: {"team": t, "gf": 0, "ga": 0, "gd": 0, "played": 0}
         for t in sweep_teams
@@ -186,7 +176,6 @@ def main():
 
     finished = []
 
-    # ✅ process matches
     for m in matches:
 
         home_raw = m.get("homeTeam", {}).get("name")
@@ -199,6 +188,10 @@ def main():
             continue
 
         ch, ca = counted_goals(m.get("score"))
+
+        # ✅ safety check
+        if ch is None or ca is None:
+            continue
 
         if home in team_stats:
             team_stats[home]["gf"] += ch
@@ -215,7 +208,7 @@ def main():
             "utcDate": m.get("utcDate")
         })
 
-    # ✅ compute GD
+    # ✅ GD
     for t in team_stats.values():
         t["gd"] = t["gf"] - t["ga"]
 
@@ -223,7 +216,6 @@ def main():
 
     generated_at = datetime.utcnow().isoformat() + "Z"
 
-    # ✅ output
     with open(OUT_TEAMS, "w") as f:
         json.dump({
             "generated_at": generated_at,
