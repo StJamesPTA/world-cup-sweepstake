@@ -64,21 +64,43 @@ def counted_goals(score):
     return ft_h, ft_a
 
 
+# ✅ ✅ ✅ Robust name normalisation (THIS FIXES USA ISSUE)
+def normalise(name, name_map):
+    if not name:
+        return ""
+
+    name = name.strip()
+
+    lower = name.lower()
+
+    if "united states" in lower:
+        return "USA"
+    if "korea" in lower:
+        return "South Korea"
+    if "iran" in lower:
+        return "Iran"
+    if "czech" in lower:
+        return "Czechia"
+
+    return name_map.get(name, name)
+
+
 def main():
 
     os.makedirs(os.path.join(ROOT, "standings"), exist_ok=True)
 
-    # ✅ Load inputs
+    # ✅ load tickets
     with open(TICKETS_PATH) as f:
         tickets = json.load(f)
 
+    # ✅ load mapping
     try:
         with open(MAP_PATH) as f:
             name_map = json.load(f)
     except:
         name_map = {}
 
-    # ✅ Collect sweepstake teams
+    # ✅ collect teams
     sweep_teams = set()
     for t in tickets:
         for team in t["teams"]:
@@ -86,11 +108,11 @@ def main():
 
     print("Tracking teams:", sweep_teams)
 
-    # ✅ Fetch matches in small chunks (WORKING VERSION)
+    # ✅ ✅ FETCH MATCHES (chunked + safe)
     matches = []
 
     start_date = datetime.utcnow() - timedelta(days=30)
-    end_date = datetime.utcnow() + timedelta(days=1)
+    end_date   = datetime.utcnow() + timedelta(days=2)
 
     current = start_date
 
@@ -113,12 +135,12 @@ def main():
 
         current = chunk_end + timedelta(days=1)
 
-    # ✅ Remove duplicates
+    # ✅ dedupe matches
     matches = list({m["id"]: m for m in matches}.values())
 
     print("Total matches fetched:", len(matches))
 
-    # ✅ Initialise stats
+    # ✅ init team stats
     team_stats = {
         t: {"team": t, "gf": 0, "ga": 0, "gd": 0, "played": 0}
         for t in sweep_teams
@@ -126,20 +148,20 @@ def main():
 
     finished = []
 
-    # ✅ Process matches
+    # ✅ process matches
     for m in matches:
 
         status = m.get("status")
         if status in ("SCHEDULED", "TIMED"):
             continue
 
-        home_raw = (m.get("homeTeam", {}).get("name") or "").strip()
-        away_raw = (m.get("awayTeam", {}).get("name") or "").strip()
-        
-        home = name_map.get(home_raw) or name_map.get(home_raw.title()) or home_raw
-        away = name_map.get(away_raw) or name_map.get(away_raw.title()) or away_raw
+        home_raw = m.get("homeTeam", {}).get("name")
+        away_raw = m.get("awayTeam", {}).get("name")
 
+        home = normalise(home_raw, name_map)
+        away = normalise(away_raw, name_map)
 
+        # ✅ include if either team is relevant
         if home not in team_stats and away not in team_stats:
             continue
 
@@ -153,6 +175,7 @@ def main():
             team_stats[away]["gf"] += ca
             team_stats[away]["ga"] += ch
 
+        # ✅ include LIVE + FINISHED games
         if status in ("FINISHED", "IN_PLAY"):
 
             if home in team_stats:
@@ -168,15 +191,16 @@ def main():
                 "utcDate": m.get("utcDate")
             })
 
-    # ✅ Compute GD
+    # ✅ compute GD
     for t in team_stats.values():
         t["gd"] = t["gf"] - t["ga"]
 
     finished.sort(key=lambda x: x["utcDate"], reverse=True)
 
+    # ✅ timestamp
     generated_at = datetime.utcnow().isoformat() + "Z"
 
-    # ✅ Write outputs
+    # ✅ write output
     with open(OUT_TEAMS, "w") as f:
         json.dump({
             "generated_at": generated_at,
