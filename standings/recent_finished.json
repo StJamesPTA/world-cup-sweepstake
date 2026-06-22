@@ -1,6 +1,12 @@
 {
-  "generated_at": "2026-06-21T23:21:14.722220Z",
+  "generated_at": "2026-06-22T02:03:25.081827Z",
   "matches": [
+    {
+      "home": "Uruguay",
+      "away": "Cape Verde Islands",
+      "score": "2-2",
+      "utcDate": "2026-06-21T22:00:00Z"
+    },
     {
       "home": "Belgium",
       "away": "Iran",
@@ -24,12 +30,6 @@
       "away": "Cura\u00e7ao",
       "score": "0-0",
       "utcDate": "2026-06-21T00:00:00Z"
-    },
-    {
-      "home": "Germany",
-      "away": "Ivory Coast",
-      "score": "2-1",
-      "utcDate": "2026-06-20T20:00:00Z"
     }
   ]
 }
