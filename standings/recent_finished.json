@@ -1,6 +1,12 @@
 {
-  "generated_at": "2026-06-22T17:58:10.315732Z",
+  "generated_at": "2026-06-22T21:10:04.181925Z",
   "matches": [
+    {
+      "home": "Argentina",
+      "away": "Austria",
+      "score": "2-0",
+      "utcDate": "2026-06-22T17:00:00Z"
+    },
     {
       "home": "Uruguay",
       "away": "Cape Verde Islands",
@@ -24,12 +30,6 @@
       "away": "Japan",
       "score": "0-4",
       "utcDate": "2026-06-21T04:00:00Z"
-    },
-    {
-      "home": "Ecuador",
-      "away": "Cura\u00e7ao",
-      "score": "0-0",
-      "utcDate": "2026-06-21T00:00:00Z"
     }
   ]
 }
