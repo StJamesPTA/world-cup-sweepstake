@@ -1,33 +1,12 @@
 {
-  "generated_at": "2026-06-23T04:20:34.876813Z",
+  "generated_at": "2026-06-23T08:03:55.320037Z",
   "teams": [
     {
-      "team": "Morocco",
-      "gf": 2,
+      "team": "Ecuador",
+      "gf": 0,
       "ga": 1,
-      "gd": 1,
+      "gd": -1,
       "played": 2
-    },
-    {
-      "team": "Japan",
-      "gf": 6,
-      "ga": 2,
-      "gd": 4,
-      "played": 2
-    },
-    {
-      "team": "Uruguay",
-      "gf": 3,
-      "ga": 3,
-      "gd": 0,
-      "played": 2
-    },
-    {
-      "team": "Colombia",
-      "gf": 3,
-      "ga": 1,
-      "gd": 2,
-      "played": 1
     },
     {
       "team": "Germany",
@@ -44,24 +23,24 @@
       "played": 1
     },
     {
-      "team": "Belgium",
+      "team": "Uruguay",
+      "gf": 3,
+      "ga": 3,
+      "gd": 0,
+      "played": 2
+    },
+    {
+      "team": "Portugal",
       "gf": 1,
       "ga": 1,
       "gd": 0,
-      "played": 2
+      "played": 1
     },
     {
       "team": "Netherlands",
       "gf": 7,
       "ga": 3,
       "gd": 4,
-      "played": 2
-    },
-    {
-      "team": "Mexico",
-      "gf": 3,
-      "ga": 0,
-      "gd": 3,
       "played": 2
     },
     {
@@ -72,16 +51,9 @@
       "played": 2
     },
     {
-      "team": "USA",
-      "gf": 6,
-      "ga": 1,
-      "gd": 5,
-      "played": 2
-    },
-    {
-      "team": "Senegal",
-      "gf": 3,
-      "ga": 6,
+      "team": "Turkey",
+      "gf": 0,
+      "ga": 3,
       "gd": -3,
       "played": 2
     },
@@ -90,20 +62,6 @@
       "gf": 4,
       "ga": 1,
       "gd": 3,
-      "played": 2
-    },
-    {
-      "team": "Spain",
-      "gf": 4,
-      "ga": 0,
-      "gd": 4,
-      "played": 2
-    },
-    {
-      "team": "Argentina",
-      "gf": 5,
-      "ga": 0,
-      "gd": 5,
       "played": 2
     },
     {
@@ -121,17 +79,45 @@
       "played": 2
     },
     {
-      "team": "Ecuador",
-      "gf": 0,
+      "team": "Colombia",
+      "gf": 3,
       "ga": 1,
-      "gd": -1,
+      "gd": 2,
+      "played": 1
+    },
+    {
+      "team": "USA",
+      "gf": 6,
+      "ga": 1,
+      "gd": 5,
       "played": 2
     },
     {
-      "team": "Turkey",
-      "gf": 0,
-      "ga": 3,
-      "gd": -3,
+      "team": "Japan",
+      "gf": 6,
+      "ga": 2,
+      "gd": 4,
+      "played": 2
+    },
+    {
+      "team": "Argentina",
+      "gf": 5,
+      "ga": 0,
+      "gd": 5,
+      "played": 2
+    },
+    {
+      "team": "Spain",
+      "gf": 4,
+      "ga": 0,
+      "gd": 4,
+      "played": 2
+    },
+    {
+      "team": "Belgium",
+      "gf": 1,
+      "ga": 1,
+      "gd": 0,
       "played": 2
     },
     {
@@ -142,11 +128,25 @@
       "played": 1
     },
     {
-      "team": "Portugal",
-      "gf": 1,
+      "team": "Mexico",
+      "gf": 3,
+      "ga": 0,
+      "gd": 3,
+      "played": 2
+    },
+    {
+      "team": "Morocco",
+      "gf": 2,
       "ga": 1,
-      "gd": 0,
-      "played": 1
+      "gd": 1,
+      "played": 2
+    },
+    {
+      "team": "Senegal",
+      "gf": 3,
+      "ga": 6,
+      "gd": -3,
+      "played": 2
     }
   ]
 }
