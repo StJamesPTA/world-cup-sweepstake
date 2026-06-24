@@ -1,6 +1,12 @@
 {
-  "generated_at": "2026-06-24T20:14:43.239844Z",
+  "generated_at": "2026-06-24T21:49:56.255154Z",
   "matches": [
+    {
+      "home": "Switzerland",
+      "away": "Canada",
+      "score": "2-1",
+      "utcDate": "2026-06-24T19:00:00Z"
+    },
     {
       "home": "Colombia",
       "away": "Congo DR",
@@ -24,12 +30,6 @@
       "away": "Uzbekistan",
       "score": "5-0",
       "utcDate": "2026-06-23T17:00:00Z"
-    },
-    {
-      "home": "Norway",
-      "away": "Senegal",
-      "score": "3-2",
-      "utcDate": "2026-06-23T00:00:00Z"
     }
   ]
 }
