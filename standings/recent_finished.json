@@ -1,6 +1,18 @@
 {
-  "generated_at": "2026-06-24T22:57:57.358863Z",
+  "generated_at": "2026-06-25T00:19:01.497107Z",
   "matches": [
+    {
+      "home": "Morocco",
+      "away": "Haiti",
+      "score": "4-2",
+      "utcDate": "2026-06-24T22:00:00Z"
+    },
+    {
+      "home": "Scotland",
+      "away": "Brazil",
+      "score": "0-3",
+      "utcDate": "2026-06-24T22:00:00Z"
+    },
     {
       "home": "Switzerland",
       "away": "Canada",
@@ -18,18 +30,6 @@
       "away": "Croatia",
       "score": "0-1",
       "utcDate": "2026-06-23T23:00:00Z"
-    },
-    {
-      "home": "England",
-      "away": "Ghana",
-      "score": "0-0",
-      "utcDate": "2026-06-23T20:00:00Z"
-    },
-    {
-      "home": "Portugal",
-      "away": "Uzbekistan",
-      "score": "5-0",
-      "utcDate": "2026-06-23T17:00:00Z"
     }
   ]
 }
