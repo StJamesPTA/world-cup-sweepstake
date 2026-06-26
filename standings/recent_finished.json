@@ -1,6 +1,12 @@
 {
-  "generated_at": "2026-06-26T01:54:35.877619Z",
+  "generated_at": "2026-06-26T06:13:38.641423Z",
   "matches": [
+    {
+      "home": "Turkey",
+      "away": "USA",
+      "score": "3-2",
+      "utcDate": "2026-06-26T02:00:00Z"
+    },
     {
       "home": "Tunisia",
       "away": "Netherlands",
@@ -24,12 +30,6 @@
       "away": "Mexico",
       "score": "0-3",
       "utcDate": "2026-06-25T01:00:00Z"
-    },
-    {
-      "home": "Morocco",
-      "away": "Haiti",
-      "score": "4-2",
-      "utcDate": "2026-06-24T22:00:00Z"
     }
   ]
 }
