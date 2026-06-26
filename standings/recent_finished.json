@@ -1,6 +1,18 @@
 {
-  "generated_at": "2026-06-26T20:53:09.033647Z",
+  "generated_at": "2026-06-26T22:16:25.399317Z",
   "matches": [
+    {
+      "home": "Norway",
+      "away": "France",
+      "score": "1-4",
+      "utcDate": "2026-06-26T19:00:00Z"
+    },
+    {
+      "home": "Senegal",
+      "away": "Iraq",
+      "score": "5-0",
+      "utcDate": "2026-06-26T19:00:00Z"
+    },
     {
       "home": "Turkey",
       "away": "USA",
@@ -18,18 +30,6 @@
       "away": "Sweden",
       "score": "1-1",
       "utcDate": "2026-06-25T23:00:00Z"
-    },
-    {
-      "home": "Ecuador",
-      "away": "Germany",
-      "score": "2-1",
-      "utcDate": "2026-06-25T20:00:00Z"
-    },
-    {
-      "home": "Czechia",
-      "away": "Mexico",
-      "score": "0-3",
-      "utcDate": "2026-06-25T01:00:00Z"
     }
   ]
 }
