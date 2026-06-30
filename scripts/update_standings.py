@@ -45,25 +45,50 @@ def counted_goals(score):
     if not score:
         return None, None
 
-    ft = score.get("fullTime") or {}
+    duration = score.get("duration")
+
     rt = score.get("regularTime") or {}
     et = score.get("extraTime") or {}
+    ft = score.get("fullTime") or {}
 
     def valid(s):
-        return s and s.get("home") is not None and s.get("away") is not None
+        return (
+            s and
+            s.get("home") is not None and
+            s.get("away") is not None
+        )
 
+    # ✅ Penalties: count ONLY regular time + extra time
+    if duration == "PENALTY_SHOOTOUT":
+
+        rt_h, rt_a = pair(rt) if valid(rt) else (0, 0)
+        et_h, et_a = pair(et) if valid(et) else (0, 0)
+
+        return (
+            rt_h + et_h,
+            rt_a + et_a
+        )
+
+    # ✅ Extra time: count regular time + extra time
+    if duration == "EXTRA_TIME":
+
+        rt_h, rt_a = pair(rt) if valid(rt) else (0, 0)
+        et_h, et_a = pair(et) if valid(et) else (0, 0)
+
+        return (
+            rt_h + et_h,
+            rt_a + et_a
+        )
+
+    # ✅ Normal games
     if valid(ft):
-        h, a = pair(ft)
-    elif valid(rt):
-        h, a = pair(rt)
-    elif valid(et):
-        h, a = pair(et)
-    else:
-        return None, None
+        return pair(ft)
 
-    return h, a
+    if valid(rt):
+        return pair(rt)
 
-
+    return None, None
+    
 # ✅ safe name mapping (NO "United" bug)
 def normalise(name, name_map):
     if not name:
