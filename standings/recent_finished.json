@@ -1,6 +1,12 @@
 {
-  "generated_at": "2026-07-09T21:50:27.074112Z",
+  "generated_at": "2026-07-09T23:13:47.583867Z",
   "matches": [
+    {
+      "home": "France",
+      "away": "Morocco",
+      "score": "2-0",
+      "utcDate": "2026-07-09T20:00:00Z"
+    },
     {
       "home": "Switzerland",
       "away": "Colombia",
@@ -24,12 +30,6 @@
       "away": "Spain",
       "score": "0-1",
       "utcDate": "2026-07-06T19:00:00Z"
-    },
-    {
-      "home": "Mexico",
-      "away": "England",
-      "score": "2-3",
-      "utcDate": "2026-07-06T01:00:00Z"
     }
   ]
 }
